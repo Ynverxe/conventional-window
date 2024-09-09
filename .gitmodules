@@ -1,0 +1,3 @@
+[submodule "minestom-item-api"]
+	path = minestom-item-api
+	url = git@github.com:Minestom/Minestom.git
