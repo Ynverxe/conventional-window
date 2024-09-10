@@ -19,9 +19,13 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BukkitSupport {
 
+  private static volatile boolean initiated = false;
+
   private BukkitSupport() {}
 
   public static void init() {
+    if (initiated) return;
+
     MinecraftServer minecraftServer = MinecraftServer.init();
 
     MinecraftServer.getGlobalEventHandler()
@@ -36,6 +40,8 @@ public final class BukkitSupport {
                   .bukkitInventory()
                   .setItem(event.getSlot(), fromMinestomItem(event.getNewItem()));
             });
+
+    initiated = true;
   }
 
   public static @NotNull org.bukkit.inventory.ItemStack fromMinestomItem(ItemStack itemStack) {

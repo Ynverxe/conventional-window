@@ -21,6 +21,8 @@ public class Plugin extends JavaPlugin implements Listener {
 
   @Override
   public void onEnable() {
+    BukkitSupport.init();
+
     BukkitMenuContainer menuContainer = new BukkitMenuContainer(this);
 
     menu = menuContainer.newMenu(InventoryType.CHEST_6_ROW);

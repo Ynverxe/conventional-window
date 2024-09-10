@@ -4,7 +4,6 @@ import com.github.ynverxe.conventionalwindow.MenuContainer;
 import com.github.ynverxe.conventionalwindow.SimpleMenu;
 import com.github.ynverxe.conventionalwindow.inventory.CustomAdaptableInventory;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.inventory.InventoryType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,10 +14,6 @@ import org.slf4j.Logger;
 public class BukkitMenuContainer
     extends MenuContainer<
         SimpleMenu<Player, CustomAdaptableInventory>, Player, CustomAdaptableInventory> {
-
-  static {
-    MinecraftServer.init();
-  }
 
   public BukkitMenuContainer(@NotNull JavaPlugin plugin, @NotNull Logger logger) {
     super(logger);
