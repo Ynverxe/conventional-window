@@ -45,4 +45,6 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
   @NotNull T inventory();
 
   void tick();
+  @Contract("_ -> this")
+  M configureItemContext(@NotNull Consumer<ItemContext> configurator);
 }

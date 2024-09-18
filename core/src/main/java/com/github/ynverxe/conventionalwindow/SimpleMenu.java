@@ -30,6 +30,7 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
 
   private volatile @NotNull Component title = Component.empty();
   private volatile @NotNull Component renderedTitle = Component.empty();
+  private volatile @NotNull Consumer<ItemContext> itemContextConfigurator = context -> {};
 
   public SimpleMenu(@NotNull T inventory, @NotNull PlatformHandler<V> platformHandler) {
     this.inventory = inventory;
@@ -116,6 +117,11 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
     this.scheduler.processTick();
   }
 
+  @Override
+  public T configureItemContext(@NotNull Consumer<ItemContext> configurator) {
+    this.itemContextConfigurator = this.itemContextConfigurator.andThen(Objects.requireNonNull(configurator, "configurator"));
+    return (T) this;
+  }
   @Override
   public @NotNull Scheduler scheduler() {
     return scheduler;
