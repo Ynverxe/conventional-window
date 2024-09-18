@@ -1,10 +1,13 @@
 package com.github.ynverxe.conventionalwindow;
 
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
+import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
