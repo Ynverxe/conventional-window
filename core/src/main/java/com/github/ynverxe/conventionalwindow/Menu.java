@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends Schedulable {
+public interface Menu<I extends MenuItem<?, ?>, M extends Menu<I, M, V, T>, V, T extends Inventory> extends Schedulable {
 
   @Contract("_ -> this")
   M renderTitle(@NotNull Component title);
@@ -25,9 +25,9 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
 
   @NotNull @UnmodifiableView List<ItemStack> renderedItems();
 
-  @NotNull RelativeItemContainer staticItemContainer();
+  @NotNull RelativeItemContainer<I> staticItemContainer();
 
-  @NotNull StackedItemContainer pageableItemContainer();
+  @NotNull StackedItemContainer<I> pageableItemContainer();
 
   int capacity();
 
@@ -45,6 +45,10 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
   @NotNull T inventory();
 
   void tick();
+
   @Contract("_ -> this")
   M configureItemContext(@NotNull Consumer<ItemContext> configurator);
+
+  @NotNull RenderView<I> renderView();
+
 }

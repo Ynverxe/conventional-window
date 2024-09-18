@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class Pagination<M extends Menu<M, ?, ?>> {
+public class Pagination<M extends Menu<?, M, ?, ?>> {
 
   private final @NotNull M menu;
   private final @NotNull ItemRenderer<?> renderer;

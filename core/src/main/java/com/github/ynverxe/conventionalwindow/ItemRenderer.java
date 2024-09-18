@@ -2,11 +2,14 @@ package com.github.ynverxe.conventionalwindow;
 
 import static com.github.ynverxe.conventionalwindow.util.ItemMathUtil.*;
 
-import com.github.ynverxe.conventionalwindow.item.ItemProvider;
+import com.github.ynverxe.conventionalwindow.item.AirMenuItem;
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
-import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
+import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
+import com.github.ynverxe.conventionalwindow.util.ItemMathUtil;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,11 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-public final class ItemRenderer<V> implements RelativeItemContainer.Listener, StackedItemContainer.Listener {
+public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeItemContainer.Listener, StackedItemContainer.Listener, RenderView<I> {
 
-  private final SimpleMenu<V, ?> menu;
-  private final PlatformHandler<V> platformHandler;
-  private final ItemProvider[] providersInUse;
+  private final SimpleMenu<?, ?, ?, ?> menu;
+  private final MenuItem<?, ?>[] providersInUse;
 
   // index -> slot position
   private final Map<Integer, Integer> pageableItemIndexCache;
@@ -29,11 +31,10 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
   // pagination
   private int page = 0;
 
-  public ItemRenderer(SimpleMenu<V, ?> menu, PlatformHandler<V> platformHandler, int capacity) {
+  public ItemRenderer(SimpleMenu<?, ?, ?, ?> menu, int capacity) {
     this.menu = menu;
-    this.platformHandler = platformHandler;
     this.pageableItemIndexCache = new TreeMap<>(Integer::compareTo);
-    this.providersInUse = new ItemProvider[capacity];
+    this.providersInUse = new MenuItem[capacity];
   }
 
   void init() {
@@ -58,12 +59,12 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
     return index >= start || index < end;
   }
 
-  private @NotNull ItemProvider placedItem(int slot) {
-    return slot != -1 ? providersInUse[slot] : ItemProvider.AIR;
+  private @NotNull MenuItem<?, ?> placedItem(int slot) {
+    return slot != -1 ? providersInUse[slot] : AirMenuItem.INSTANCE;
   }
 
   private void clearProviders() {
-    Arrays.fill(this.providersInUse, ItemProvider.AIR);
+    Arrays.fill(this.providersInUse, AirMenuItem.INSTANCE);
   }
 
   private void calculateItemDistribution() {
@@ -84,7 +85,7 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
     int end = endOfPage(itemsPerPage, page);
 
     for (int index = start; index < end; index++) {
-      StackedItemContainer stackedItemContainer = menu.pageableItemContainer();
+      StackedItemContainer<?> stackedItemContainer = menu.pageableItemContainer();
 
       boolean invalidIndex = index >= stackedItemContainer.count();
 
@@ -96,40 +97,35 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
 
       if (slot == null) return;
 
-      ItemProvider provider = invalidIndex ? ItemProvider.AIR : stackedItemContainer.get(index);
+      MenuItem<?, ?> provider = invalidIndex ? AirMenuItem.INSTANCE : stackedItemContainer.get(index);
       insertPageableItem(slot, index, provider);
     }
   }
 
-  private void insertPageableItem(int slot, int index, ItemProvider provider) {
+  private void insertPageableItem(int slot, int index, MenuItem<?, ?> provider) {
     insert(slot, provider);
     pageableItemIndexCache.put(index, slot);
   }
 
-  private void insert(int slot, ItemProvider provider) {
+  private void insert(int slot, @Nullable MenuItem<?, ?> provider) {
     providersInUse[slot] = provider;
-    ItemStack itemStack = provider.get();
-    if (itemStack == null) itemStack = ItemStack.AIR;
-    menu.inventory().setItemStack(slot, itemStack);
   }
 
   @Override
-  public void handleStaticItemInsert(int key, @NotNull ItemProvider itemProvider,
-      @Nullable ItemProvider previous) {
-    previous = previous != null ? previous : ItemProvider.AIR;
-
+  public void handleStaticItemInsert(int key, @Nullable MenuItem<?, ?> menuItem,
+      @Nullable MenuItem<?, ?> previous) {
     synchronized (this) {
-      if (previous == ItemProvider.AIR) {
+      if (previous == null) {
         calculateItemDistribution();
         return;
       }
 
-      insert(key, itemProvider);
+      insert(key, menuItem);
     }
   }
 
   @Override
-  public void handlePageableItemInsertion(int index, @NotNull ItemProvider provider) {
+  public void handlePageableItemInsertion(int index, @Nullable MenuItem<?, ?> provider) {
     synchronized (this) {
       int slot = pageableItemIndexCache.get(index);
 
@@ -142,11 +138,11 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
   }
 
   @Override
-  public void handlePageableItemsShift(int index, @NotNull ItemProvider provider) {
+  public void handlePageableItemsShift(int index, @Nullable MenuItem<?, ?> provider) {
     synchronized (this) {
       if (!isInPage(index, page)) return; // out of the current page, don't need to be rendered
 
-      StackedItemContainer container = menu.pageableItemContainer();
+      StackedItemContainer<?> container = menu.pageableItemContainer();
 
       if (container.getLast() == provider) { // no elements in front of this, no shift made
         Integer nextFreeSlot = freeSlots.poll();
@@ -155,9 +151,9 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
 
         insertPageableItem(nextFreeSlot, index, provider);
       } else {
-        ItemProvider temp = provider;
+        MenuItem<?, ?> temp = provider;
 
-        StackedItemContainer stackedItemContainer = menu.pageableItemContainer();
+        StackedItemContainer<?> stackedItemContainer = menu.pageableItemContainer();
 
         // Shift and render
         while (isInPage(index, page) && !freeSlots.isEmpty() && index < stackedItemContainer.count()) {
@@ -165,7 +161,7 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
 
           if (nextFreeSlot == null) return;
 
-          ItemProvider current = stackedItemContainer
+          MenuItem<?, ?> current = stackedItemContainer
               .get(index);
 
           insertPageableItem(nextFreeSlot, index, temp);
@@ -185,13 +181,38 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
     renderPageableItems(true);
   }
 
-  public void updateItems() {
+  public void updateItems(@NotNull ItemContext context) {
     synchronized (this) {
       int slot = 0;
-      for (ItemProvider provider : this.providersInUse) {
-        ItemStack itemStack = provider.get();
+      for (MenuItem<?, ?> provider : this.providersInUse) {
+        ItemStack itemStack = provider.get(context);
         menu.inventory().setItemStack(slot++, itemStack != null ? itemStack : ItemStack.AIR);
       }
     }
+  }
+
+  @Override
+  public @NotNull LinkedHashMap<Integer, I> asMap() {
+    LinkedHashMap<Integer, I> map = new LinkedHashMap<>();
+    for (int slot = 0; slot < providersInUse.length; slot++) {
+      I item = getItem(slot);
+      if (item != null) {
+        map.put(slot, item);
+      }
+    }
+    return map;
+  }
+
+  @Override
+  public @Nullable I getItem(int slot) {
+    MenuItem<?, ?> item = providersInUse[slot];
+    ItemMathUtil.checkOutOfInventory(slot, providersInUse.length);
+
+    return item == AirMenuItem.INSTANCE ? null : (I) item;
+  }
+
+  @Override
+  public int length() {
+    return providersInUse.length;
   }
 }

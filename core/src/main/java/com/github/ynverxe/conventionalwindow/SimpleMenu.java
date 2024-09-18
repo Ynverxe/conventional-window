@@ -16,15 +16,16 @@ import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>, V, T> {
+public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventory, T extends SimpleMenu<I, V, C, T>>
+    implements Menu<I, T, V, C> {
 
-  private final T inventory;
+  private final C inventory;
   private final PlatformHandler<V> platformHandler;
   private final List<ItemStack> renderedItemStacks = new ArrayList<>();
-  private final StackedItemContainer pageableItems;
-  private final RelativeItemContainer staticItems;
-  private final ItemRenderer<V> itemRenderer;
-  private final Pagination<SimpleMenu<V, T>> pagination;
+  private final StackedItemContainer<I> pageableItems;
+  private final RelativeItemContainer<I> staticItems;
+  private final ItemRenderer<I> itemRenderer;
+  private final Pagination<T> pagination;
 
   private final @NotNull Scheduler scheduler = Scheduler.newScheduler();
 
@@ -32,22 +33,22 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
   private volatile @NotNull Component renderedTitle = Component.empty();
   private volatile @NotNull Consumer<ItemContext> itemContextConfigurator = context -> {};
 
-  public SimpleMenu(@NotNull T inventory, @NotNull PlatformHandler<V> platformHandler) {
+  public SimpleMenu(@NotNull C inventory, @NotNull PlatformHandler<V> platformHandler) {
     this.inventory = inventory;
     this.platformHandler = platformHandler;
-    this.itemRenderer = new ItemRenderer<>(this, platformHandler, capacity());
-    this.pageableItems = new StackedItemContainer(this, this.itemRenderer);
-    this.staticItems = new RelativeItemContainer(this, this.itemRenderer, inventory.getSize());
-    this.pagination = new Pagination<>(this, itemRenderer);
+    this.itemRenderer = new ItemRenderer<>(this, capacity());
+    this.pageableItems = new StackedItemContainer<>(this, this.itemRenderer);
+    this.staticItems = new RelativeItemContainer<>(this, this.itemRenderer, inventory.getSize());
+    this.pagination = new Pagination<>((T) this, itemRenderer);
     this.itemRenderer.init();
   }
 
   @Override
-  public SimpleMenu<V, T> renderTitle(@NotNull Component title) {
+  public T renderTitle(@NotNull Component title) {
     this.title = title;
     this.renderedTitle = title;
     this.inventory.setTitle(renderedTitle);
-    return this;
+    return (T) this;
   }
 
   @Override
@@ -66,12 +67,12 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
   }
 
   @Override
-  public @NotNull RelativeItemContainer staticItemContainer() {
+  public @NotNull RelativeItemContainer<I> staticItemContainer() {
     return staticItems;
   }
 
   @Override
-  public @NotNull StackedItemContainer pageableItemContainer() {
+  public @NotNull StackedItemContainer<I> pageableItemContainer() {
     return pageableItems;
   }
 
@@ -97,7 +98,7 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
 
   @Override
   @NotNull
-  public Pagination<SimpleMenu<V, T>> pagination() {
+  public Pagination<T> pagination() {
     return pagination;
   }
 
@@ -108,12 +109,14 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
   }
 
   @Override
-  public @NotNull T inventory() {
+  public @NotNull C inventory() {
     return inventory;
   }
 
   public void tick() {
-    this.itemRenderer.updateItems();
+    ItemContext itemContext = new ItemContext(this);
+    itemContextConfigurator.accept(itemContext);
+    this.itemRenderer.updateItems(itemContext);
     this.scheduler.processTick();
   }
 
@@ -122,6 +125,12 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
     this.itemContextConfigurator = this.itemContextConfigurator.andThen(Objects.requireNonNull(configurator, "configurator"));
     return (T) this;
   }
+
+  @Override
+  public @NotNull RenderView<I> renderView() {
+    return itemRenderer;
+  }
+
   @Override
   public @NotNull Scheduler scheduler() {
     return scheduler;
