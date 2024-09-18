@@ -1,7 +1,6 @@
-package com.github.ynverxe.conventionalwindow.item;
+package com.github.ynverxe.conventionalwindow.item.container;
 
-import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
-import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

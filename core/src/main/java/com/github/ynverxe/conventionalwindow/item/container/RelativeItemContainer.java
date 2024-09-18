@@ -1,7 +1,6 @@
 package com.github.ynverxe.conventionalwindow.item.container;
 
 import com.github.ynverxe.conventionalwindow.Menu;
-import com.github.ynverxe.conventionalwindow.item.AbstractItemContainer;
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import java.util.Objects;
