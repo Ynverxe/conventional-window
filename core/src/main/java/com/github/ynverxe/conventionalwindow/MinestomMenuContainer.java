@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 public class MinestomMenuContainer<T extends Inventory>
-    extends MenuContainer<SimpleMenu<Player, T>, Player, T> {
+    extends MenuContainer<MinestomMenu<T>, Player, T> {
 
   private final Function<InventoryType, T> inventoryFactory;
 
@@ -39,7 +39,7 @@ public class MinestomMenuContainer<T extends Inventory>
   }
 
   @Override
-  protected SimpleMenu<Player, T> createMenu(@NotNull InventoryType inventoryType) {
-    return new SimpleMenu<>(inventoryFactory.apply(inventoryType), PlatformHandler.minestom());
+  protected MinestomMenu<T> createMenu(@NotNull InventoryType inventoryType) {
+    return new MinestomMenu<>(inventoryFactory.apply(inventoryType), PlatformHandler.minestom());
   }
 }

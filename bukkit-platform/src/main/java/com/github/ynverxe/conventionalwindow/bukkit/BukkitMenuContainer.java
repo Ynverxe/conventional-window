@@ -1,7 +1,6 @@
 package com.github.ynverxe.conventionalwindow.bukkit;
 
 import com.github.ynverxe.conventionalwindow.MenuContainer;
-import com.github.ynverxe.conventionalwindow.SimpleMenu;
 import com.github.ynverxe.conventionalwindow.inventory.CustomAdaptableInventory;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
@@ -12,8 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 public class BukkitMenuContainer
-    extends MenuContainer<
-        SimpleMenu<Player, CustomAdaptableInventory>, Player, CustomAdaptableInventory> {
+    extends MenuContainer<BukkitMenu, Player, CustomAdaptableInventory> {
 
   public BukkitMenuContainer(@NotNull JavaPlugin plugin, @NotNull Logger logger) {
     super(logger);
@@ -22,11 +20,6 @@ public class BukkitMenuContainer
 
   public BukkitMenuContainer(@NotNull JavaPlugin plugin) {
     this(plugin, plugin.getComponentLogger());
-  }
-
-  @Override
-  public @NotNull BukkitMenu newMenu(@NotNull InventoryType inventoryType) {
-    return (BukkitMenu) super.newMenu(inventoryType);
   }
 
   @Override

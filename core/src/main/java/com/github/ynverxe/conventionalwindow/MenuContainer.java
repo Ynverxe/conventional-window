@@ -9,7 +9,7 @@ import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-public abstract class MenuContainer<M extends Menu<M, V, T>, V, T extends Inventory>
+public abstract class MenuContainer<M extends Menu<?, M, V, T>, V, T extends Inventory>
     implements Runnable {
 
   private final Logger logger;
