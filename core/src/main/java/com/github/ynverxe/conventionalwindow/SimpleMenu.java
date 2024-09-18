@@ -1,5 +1,6 @@
 package com.github.ynverxe.conventionalwindow;
 
+import com.github.ynverxe.conventionalwindow.item.ItemClickHandler;
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
@@ -118,10 +119,15 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   }
 
   public void tick() {
-    ItemContext itemContext = new ItemContext(this);
-    itemContextConfigurator.accept(itemContext);
+    ItemContext itemContext = createItemContext();
     this.itemRenderer.updateItems(itemContext);
     this.scheduler.processTick();
+  }
+
+  protected ItemContext createItemContext() {
+    ItemContext itemContext = new ItemContext(this);
+    itemContextConfigurator.accept(itemContext);
+    return itemContext;
   }
 
   @Override
@@ -139,4 +145,5 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   public @NotNull Scheduler scheduler() {
     return scheduler;
   }
+
 }
