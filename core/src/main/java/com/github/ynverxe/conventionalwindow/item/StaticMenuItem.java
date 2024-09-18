@@ -18,10 +18,10 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   /**
    * Creates a new StaticItemMenu
    *
-   * @param updateTimes  The times that this provider will retrieve a non-null item stack. If this
-   *                     param less than one, the provider will return the passed item stack
+   * @param updateTimes  The times that this menuItem will retrieve a non-null item stack. If this
+   *                     param less than one, the menuItem will return the passed item stack
    *                     forever.
-   * @param itemStack    The item stack that this provider will retrieve.
+   * @param itemStack    The item stack that this menuItem will retrieve.
    * @param clickHandler The click handler used to handle click events made to this menu item.
    */
   protected StaticMenuItem(int updateTimes, @NotNull ItemStack itemStack, @NotNull ItemClickHandler<E> clickHandler) {
@@ -44,7 +44,7 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   }
 
   /**
-   * @return the times that this provider will retrieve a non-null item stack.
+   * @return the times that this menuItem will retrieve a non-null item stack.
    */
   public int updateTimes() {
     return updateTimes;
@@ -56,10 +56,10 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   }
 
   /**
-   * @param updateTimes the times that the new provider will retrieve a non-null item stack.
+   * @param updateTimes the times that the new menuItem will retrieve a non-null item stack.
    *
    * @see StaticMenuItem#StaticMenuItem(int, ItemStack, ItemClickHandler)
-   * @return a new StaticItemProvider with the passed updateTimes
+   * @return a new StaticMenuItem with the passed updateTimes
    */
   @Contract("_ -> new")
   public StaticMenuItem<E> withUpdateTimes(int updateTimes) {
@@ -67,17 +67,17 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   }
 
   /**
-   * @return The item stack that this provider will retrieve.
+   * @return The item stack that this menuItem will retrieve.
    */
   public @NotNull ItemStack itemStack() {
     return itemStack;
   }
 
   /**
-   * @param itemStack the item stack the new provider will retrieve.
+   * @param itemStack the item stack the new menuItem will retrieve.
    *
    * @see StaticMenuItem#StaticMenuItem(int, ItemStack, ItemClickHandler)
-   * @return a new StaticItemProvider with the passed itemStack
+   * @return a new StaticMenuItem with the passed itemStack
    */
   @Contract("_ -> new")
   public StaticMenuItem<E> withItemStack(@NotNull ItemStack itemStack) {
@@ -85,14 +85,14 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   }
 
   /**
-   * @param provider the item stack function used to get the item stack that the new provider will retrieve.
+   * @param menuItem the item stack function used to get the item stack that the new menuItem will retrieve.
    *
    * @see StaticMenuItem#StaticMenuItem(int, ItemStack, ItemClickHandler)
-   * @return a new StaticItemProvider with the passed itemStack
+   * @return a new StaticMenuItem with the passed itemStack
    */
   @Contract("_ -> new")
-  public StaticMenuItem<E> withItemStack(@NotNull Function<@NotNull ItemStack, @NotNull ItemStack> provider) {
-    return newItem(provider.apply(itemStack), updateTimes);
+  public StaticMenuItem<E> withItemStack(@NotNull Function<@NotNull ItemStack, @NotNull ItemStack> menuItem) {
+    return newItem(menuItem.apply(itemStack), updateTimes);
   }
 
   @Override

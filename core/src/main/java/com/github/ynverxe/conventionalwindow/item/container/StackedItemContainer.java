@@ -16,7 +16,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
     AbstractItemContainer<I> {
 
   private final Menu<I, ?, ?, ?> menu;
-  private final List<I> itemProviders = new ArrayList<>();
+  private final List<I> menuItems = new ArrayList<>();
   private final Listener listener;
 
   public StackedItemContainer(@NotNull Menu<I, ?, ?, ?> menu, @NotNull Listener listener) {
@@ -29,7 +29,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
     if (index < 0 || index >= count())
       throw new IndexOutOfBoundsException("index out of bounds (" + index + ")");
 
-    return itemProviders.get(index);
+    return menuItems.get(index);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
 
   @Override
   public I set(int index, @Nullable I element) {
-    I previous = itemProviders.set(index, element);
+    I previous = menuItems.set(index, element);
     listener.handlePageableItemInsertion(index, element);
     return previous;
   }
@@ -52,7 +52,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
 
   @Override
   public void add(int index, @Nullable I element) {
-    itemProviders.add(index, element);
+    menuItems.add(index, element);
     listener.handlePageableItemsShift(index, element);
   }
 
@@ -64,7 +64,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
 
   @Override
   public I remove(int index) {
-    I previous = itemProviders.remove(index);
+    I previous = menuItems.remove(index);
     if (previous != null) {
       listener.handlePageableItemInsertion(index, previous);
     }
@@ -73,18 +73,18 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
 
   @Override
   public int count() {
-    return itemProviders.size();
+    return menuItems.size();
   }
 
   @Override
   public int nonNullCount() {
-    return (int) itemProviders.stream()
+    return (int) menuItems.stream()
         .filter(Objects::nonNull)
         .count();
   }
 
   @Override
-  public StackedItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I provider) {
+  public StackedItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
 
@@ -94,7 +94,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
         diff--;
       }
 
-      add((I) provider.copy());
+      add((I) menuItem.copy());
     }
 
     return this;
@@ -106,8 +106,8 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
   }
 
   public interface Listener {
-    void handlePageableItemInsertion(int index, @Nullable MenuItem<?, ?> provider);
+    void handlePageableItemInsertion(int index, @Nullable MenuItem<?, ?> menuItem);
 
-    void handlePageableItemsShift(int index, @Nullable MenuItem<?, ?> provider);
+    void handlePageableItemsShift(int index, @Nullable MenuItem<?, ?> menuItem);
   }
 }

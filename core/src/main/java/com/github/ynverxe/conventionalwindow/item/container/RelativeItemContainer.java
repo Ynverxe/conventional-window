@@ -75,10 +75,10 @@ public class RelativeItemContainer<I extends MenuItem<?, ?>> extends ConcurrentH
   }
 
   @Override
-  public RelativeItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I provider) {
+  public RelativeItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
-      put(next, (I) provider.copy());
+      put(next, (I) menuItem.copy());
     }
 
     return this;

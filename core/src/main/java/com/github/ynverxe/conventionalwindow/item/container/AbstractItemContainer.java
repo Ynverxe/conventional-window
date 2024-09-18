@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 public interface AbstractItemContainer<T extends MenuItem<?, ?>> {
 
   /**
-   * Returns the ItemProvider associated with the specified index (from zero to {@link #maxFindableIndex()}).
+   * Returns the MenuItem associated with the specified index (from zero to {@link #maxFindableIndex()}).
    *
    * @param index Depending on the implementation, this can be an element position or a key.
-   * @return The found ItemProvider
+   * @return The found MenuItem
    *
    * @see StackedItemContainer
    * @see RelativeItemContainer
@@ -35,6 +35,6 @@ public interface AbstractItemContainer<T extends MenuItem<?, ?>> {
   int nonNullCount();
 
   @Contract("_, _ -> this")
-  AbstractItemContainer<T> fill(@NotNull SlotIterator iterator, @NotNull T provider);
+  AbstractItemContainer<T> fill(@NotNull SlotIterator iterator, @NotNull T menuItem);
 
 }
