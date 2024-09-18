@@ -1,7 +1,7 @@
 package com.github.ynverxe.conventionalwindow.test;
 
-import com.github.ynverxe.conventionalwindow.MinestomMenu;
-import com.github.ynverxe.conventionalwindow.MinestomMenuContainer;
+import com.github.ynverxe.conventionalwindow.minestom.MinestomMenu;
+import com.github.ynverxe.conventionalwindow.minestom.MinestomMenuContainer;
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.SequentialMenuItem;
 import com.github.ynverxe.conventionalwindow.item.StaticMenuItem;

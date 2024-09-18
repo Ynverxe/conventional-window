@@ -1,5 +1,6 @@
-package com.github.ynverxe.conventionalwindow;
+package com.github.ynverxe.conventionalwindow.minestom;
 
+import com.github.ynverxe.conventionalwindow.MenuContainer;
 import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.Objects;
 import java.util.function.Function;
