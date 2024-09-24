@@ -6,10 +6,10 @@ import net.minestom.server.inventory.Inventory;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class BukkitMenu extends SimpleMenu<Player, Inventory> {
+public class BukkitMenu<T extends Inventory> extends SimpleMenu<Player, T> {
 
   public BukkitMenu(
-      @NotNull Inventory inventory,
+      @NotNull T inventory,
       @NotNull PlatformHandler<Player> platformHandler) {
     super(inventory, platformHandler);
   }

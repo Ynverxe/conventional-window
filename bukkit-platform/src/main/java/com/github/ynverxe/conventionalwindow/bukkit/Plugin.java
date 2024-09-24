@@ -5,6 +5,7 @@ import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -17,11 +18,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Plugin extends JavaPlugin implements Listener {
 
-  private BukkitMenu menu;
+  private BukkitMenu<Inventory> menu;
 
   @Override
   public void onEnable() {
-    BukkitMenuContainer menuContainer = new BukkitMenuContainer(this);
+    BukkitMenuContainer<Inventory> menuContainer = new BukkitMenuContainer<>(this, type -> new Inventory(type, Component.empty()));
 
     menu = menuContainer.newMenu(InventoryType.CHEST_6_ROW);
 
