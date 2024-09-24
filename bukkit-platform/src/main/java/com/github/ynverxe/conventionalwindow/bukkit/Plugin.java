@@ -21,8 +21,6 @@ public class Plugin extends JavaPlugin implements Listener {
 
   @Override
   public void onEnable() {
-    BukkitSupport.init();
-
     BukkitMenuContainer menuContainer = new BukkitMenuContainer(this);
 
     menu = menuContainer.newMenu(InventoryType.CHEST_6_ROW);
@@ -51,7 +49,7 @@ public class Plugin extends JavaPlugin implements Listener {
         .buildTask(
             () -> {
               int random = ThreadLocalRandom.current().nextInt();
-              menu.renderTitle(Component.text("Random number: " + random));
+              //menu.renderTitle(Component.text("Random number: " + random));
             })
         .repeat(TaskSchedule.tick(1))
         .schedule();
