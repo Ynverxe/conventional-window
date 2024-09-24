@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("com.gradleup.shadow") version "8.3.0"
-    id("io.papermc.paperweight.userdev") version "1.7.2"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -16,16 +15,16 @@ repositories {
     mavenCentral()
     mavenLocal()
     maven("https://jitpack.io")
-    maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
+    mavenCentral()
 }
 
 dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.netty:netty-all:4.1.113.Final")
+    compileOnly("net.minestom:minestom-snapshots:7ce047b22e")
     implementation(project(":core"))
-    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
-}
-
-tasks.shadowJar {
-    manifest {
-        attributes["paperweight-mappings-namespace"] = "mojang"
-    }
+    implementation(project(":bukkit-platform:nms-common"))
+    implementation(project(":bukkit-platform:nms-1.20"))
+    implementation(project(":bukkit-platform:nms-1.20.5"))
 }
