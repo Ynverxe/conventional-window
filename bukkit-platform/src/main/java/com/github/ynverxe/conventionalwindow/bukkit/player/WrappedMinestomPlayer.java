@@ -1,4 +1,4 @@
-package com.github.ynverxe.conventionalwindow.bukkit.internal.player;
+package com.github.ynverxe.conventionalwindow.bukkit.player;
 
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.PlayerConnectionBridge;
 import com.github.ynverxe.conventionalwindow.bukkit.nms.common.NMSModule;

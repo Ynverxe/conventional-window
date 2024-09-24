@@ -1,7 +1,7 @@
 package com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet;
 
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.PlayerConnectionBridge;
-import com.github.ynverxe.conventionalwindow.bukkit.internal.player.WrappedMinestomPlayer;
+import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

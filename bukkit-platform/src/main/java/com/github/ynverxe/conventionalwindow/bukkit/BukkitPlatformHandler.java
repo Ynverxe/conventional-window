@@ -1,6 +1,6 @@
 package com.github.ynverxe.conventionalwindow.bukkit;
 
-import com.github.ynverxe.conventionalwindow.bukkit.internal.player.WrappedMinestomPlayer;
+import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
 import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.Collection;
 import net.minestom.server.inventory.Inventory;

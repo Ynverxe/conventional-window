@@ -1,4 +1,4 @@
-package com.github.ynverxe.conventionalwindow.bukkit.internal.player;
+package com.github.ynverxe.conventionalwindow.bukkit.player;
 
 import java.util.Map;
 import java.util.UUID;

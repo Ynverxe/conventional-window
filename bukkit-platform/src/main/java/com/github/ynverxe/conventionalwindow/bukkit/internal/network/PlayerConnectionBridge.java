@@ -2,7 +2,7 @@ package com.github.ynverxe.conventionalwindow.bukkit.internal.network;
 
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet.CustomInboundAdapter;
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet.CustomPacketEncoder;
-import com.github.ynverxe.conventionalwindow.bukkit.internal.player.WrappedMinestomPlayer;
+import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
 import com.github.ynverxe.conventionalwindow.bukkit.nms.common.NMSModule;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
