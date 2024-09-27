@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    api("net.minestom:minestom-snapshots:7ce047b22e")
+    implementation("net.minestom:minestom-snapshots:7ce047b22e")
     implementation("org.jetbrains:annotations:24.0.0")
 
     testImplementation("net.minestom:minestom-snapshots:7ce047b22e")
