@@ -56,7 +56,7 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
     int itemsPerPage = itemsPerPage(menu);
     int start = startOfPage(itemsPerPage, page);
     int end = endOfPage(itemsPerPage, page);
-    return index >= start || index < end;
+    return index >= start && index < end;
   }
 
   private @NotNull MenuItem<?, ?> placedItem(int slot) {
