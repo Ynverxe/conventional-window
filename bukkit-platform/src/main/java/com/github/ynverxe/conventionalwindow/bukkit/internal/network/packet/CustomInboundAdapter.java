@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Objects;
 import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.network.NetworkBuffer;
@@ -14,14 +13,13 @@ import net.minestom.server.network.PacketProcessor;
 import net.minestom.server.utils.binary.BinaryBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("ALL")
 public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
-  private static final List<Integer> ALLOWED_PACKET_IDS = List.of(
-      0x0E, // Click packet
-      0x0F // Close window packet
-  );
+  private static final Logger LOGGER = LoggerFactory.getLogger("CustomInboundAdapter");
   private static final PacketListenerManager PACKET_LISTENER_MANAGER = new PacketListenerManager();
   private static final PacketProcessor PACKET_PROCESSOR = new PacketProcessor(PACKET_LISTENER_MANAGER);
 
@@ -60,17 +58,21 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
       //System.out.println("Processing packet: " + packetId);
 
-      if (!ALLOWED_PACKET_IDS.contains(packetId)) {
-        //System.out.println("Packet delegated to vanilla");
+      try {
+        if (!AllowedPackets.CLIENT_TO_SERVER.containsKey(packetId)) {
+          //System.out.println("Packet delegated to vanilla");
 
-        vanillaDelegate.channelRead(ctx, msg);
-        return;
+          vanillaDelegate.channelRead(ctx, msg);
+          return;
+        }
+
+        ByteBuffer packetBodyBuffer = nioBuffer.slice(buffer.readIndex(), length);
+        PACKET_PROCESSOR.process(playerConnection, packetId, packetBodyBuffer);
+      } catch (Exception e) {
+        LOGGER.error("Unexpected error when processing packet(id={})", packetId, e);
       }
-
-      ByteBuffer packetBodyBuffer = nioBuffer.slice(buffer.readIndex(), length);
-      PACKET_PROCESSOR.process(playerConnection, packetId, packetBodyBuffer);
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("Unexpected error", e);
     }
   }
 }

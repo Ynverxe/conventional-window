@@ -1,5 +1,6 @@
 package com.github.ynverxe.conventionalwindow.bukkit.internal.network;
 
+import com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet.AllowedPackets;
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet.CustomInboundAdapter;
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet.CustomPacketEncoder;
 import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
@@ -24,7 +25,6 @@ public class PlayerConnectionBridge extends PlayerConnection {
   private static final String ENCODER_NAMESPACE = "conventional_window_packet_encoder";
   private static final String DECODER_NAMESPACE = "conventional_window_packet_decoder";
 
-  private int compressionThreshold = 0;
   private final Player player;
 
   public PlayerConnectionBridge(@NotNull Player player) {
@@ -34,6 +34,10 @@ public class PlayerConnectionBridge extends PlayerConnection {
   @Override
   public void sendPacket(@NotNull SendablePacket sendablePacket) {
     sendablePacket = SendablePacket.extractServerPacket(ConnectionState.PLAY, sendablePacket);
+
+    if (!AllowedPackets.SERVER_TO_CLIENT.containsValue(sendablePacket.getClass())) {
+      throw new IllegalArgumentException("Packet '" + sendablePacket.getClass() + "' cannot be sent");
+    }
 
     if (!(sendablePacket instanceof Play playPacket)) {
       return;
