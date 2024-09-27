@@ -13,6 +13,11 @@ public abstract class NMSModule {
 
   public abstract int incrementContainerId(@NotNull Player player);
 
+  /**
+   * This method just accepts client-bound play-packets.
+   */
+  public abstract int packetId(@NotNull Object packet);
+
   public static @NotNull NMSModule instance() {
     return NMSModuleContainer.INSTANCE.convenientModule();
   }
