@@ -17,7 +17,30 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public interface Menu<I extends MenuItem<?, ?>, M extends Menu<I, M, V, T>, V, T extends Inventory> extends Schedulable {
+/**
+ * A Menu is an object forwarded by an {@link Inventory} and servers
+ * as a nexus for a lot of other components.
+ * They are:
+ * <ul>
+ *   <li>A {@link RelativeItemContainer} that stores static items.</li>
+ *   <li>A {@link StackedItemContainer} that stores pageable items.</li>
+ *   <li>A {@link Pagination} that handles page operations.</li>
+ *   <li>An {@link ItemRenderer} that distributes and render the static and pageable items.</li>
+ *   <li>An {@link Inventory}, this guy doesn't needs a presentation.</li>
+ *   <li>A sequence of generic type parameters</li>
+ * </ul>
+ *
+ * {@link SimpleMenu} is the default implementation for this class.
+ * Other menu implementations like {@link com.github.ynverxe.conventionalwindow.minestom.MinestomMenu}
+ * are platform-based implementations
+ * that extend the {@link SimpleMenu} class and fills the type parameters
+ * with platform related types.
+ *
+ * @param <M> The Menu implementation class (equivalent to doing Object#this)
+ * @param <V> The viewer type, this depends on the platform type.
+ * @param <T> The inventory type, it is up to the programmer's choice.
+ */
+public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends Schedulable {
 
   @Contract("_ -> this")
   M renderTitle(@NotNull Component title);

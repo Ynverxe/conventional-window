@@ -18,6 +18,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This class is responsible for distributing and render the items.
+ */
 @Internal
 public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeItemContainer.Listener, StackedItemContainer.Listener, RenderView<I> {
 
@@ -52,6 +55,13 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
     this.freeSlots.addAll(freeSlots(menu));
   }
 
+  /**
+   * Checks if the index is bewteen the page's range.
+   *
+   * @param index The index to check
+   * @param page The page
+   * @return index >= minPageIndex && index < maxPageIndex
+   */
   private boolean isInPage(int index, int page) {
     int itemsPerPage = itemsPerPage(menu);
     int start = startOfPage(itemsPerPage, page);
@@ -71,13 +81,22 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
     clearProviders();
     pageableItemIndexCache.clear();
 
+    // Insert the static items
     menu.staticItemContainer().forEach(this::insert);
 
+    // Now calculate the free slots (air)
     calculateFreeSlots();
 
     renderPageableItems(false);
   }
 
+  /**
+   * This method inserts a collection of pageable items in all free
+   * slots.
+   *
+   * @param fillWithAirIfNeeded If true, the remaining free slots that cannot be consumed due that
+   *                            all pageable items were rendered will be filled with {@link AirMenuItem#INSTANCE}
+   */
   private void renderPageableItems(boolean fillWithAirIfNeeded) {
     int itemsPerPage = itemsPerPage(menu);
 
@@ -87,12 +106,15 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
     for (int index = start; index < end; index++) {
       StackedItemContainer<?> stackedItemContainer = menu.pageableItemContainer();
 
+      // We reached the end of the pageable items list. There are no more items to render.
       boolean invalidIndex = index >= stackedItemContainer.count();
 
+      // When there are no more items to render, fill with air if possible
       if (invalidIndex && !fillWithAirIfNeeded) {
         continue;
       }
 
+      // All free slots were consumed
       Integer slot = freeSlots.poll();
 
       if (slot == null) return;
@@ -115,6 +137,10 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
   public void handleStaticItemInsert(int key, @Nullable MenuItem<?, ?> menuItem,
       @Nullable MenuItem<?, ?> previous) {
     synchronized (this) {
+      // If the previous static item is null means that
+      // can be a pageable item at that position, to avoid
+      // overwriting it, we calculate the distribution again to push all subsequent
+      // items forward.
       if (previous == null) {
         calculateItemDistribution();
         return;
@@ -173,14 +199,26 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
     }
   }
 
+  /**
+   * Handles the page change and renders the new pageable items.
+   *
+   * @param newPage The page to render
+   */
   public void pageChange(int newPage) {
     this.page = newPage;
+
+    // Use the previous pageable items' slots instead of calling freeSlots method
+    // Clear to avoid repeated elements
     this.freeSlots.clear();
     this.freeSlots.addAll(this.pageableItemIndexCache.values());
 
     renderPageableItems(true);
   }
 
+  /**
+   * Tick items
+   * @param context The ItemContext used to tick all rendered items
+   */
   public void updateItems(@NotNull ItemContext context) {
     synchronized (this) {
       int slot = 0;
