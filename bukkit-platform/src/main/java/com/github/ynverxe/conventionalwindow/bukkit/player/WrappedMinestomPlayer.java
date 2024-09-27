@@ -2,14 +2,16 @@ package com.github.ynverxe.conventionalwindow.bukkit.player;
 
 import com.github.ynverxe.conventionalwindow.bukkit.internal.network.PlayerConnectionBridge;
 import com.github.ynverxe.conventionalwindow.bukkit.nms.common.NMSModule;
+import com.github.ynverxe.conventionalwindow.audience.ResolvableAudience;
 import java.util.Optional;
+import net.kyori.adventure.audience.Audience;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import org.bukkit.event.inventory.InventoryType;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-public class WrappedMinestomPlayer extends Player {
+public class WrappedMinestomPlayer extends Player implements ResolvableAudience {
 
   /**
    * This value can be outdated sometimes. It is only updated when calling {@link #openInventory(Inventory)}
@@ -66,6 +68,11 @@ public class WrappedMinestomPlayer extends Player {
   public void closeInventorySilently() {
     this.sendClosePacket = false;
     this.closeInventory();
+  }
+
+  @Override
+  public @NotNull Audience audience() {
+    return bukkitPlayer;
   }
 
   public static @NotNull Optional<WrappedMinestomPlayer> fromPlayer(@NotNull org.bukkit.entity.Player player) {
