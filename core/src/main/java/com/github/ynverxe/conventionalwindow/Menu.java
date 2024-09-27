@@ -1,5 +1,6 @@
 package com.github.ynverxe.conventionalwindow;
 
+import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
@@ -36,7 +37,7 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
   void remove(@NotNull V viewer);
 
   @NotNull @UnmodifiableView
-  Collection<V> viewersView();
+  Collection<MenuViewer<V>> viewersView();
 
   @NotNull Pagination<M> pagination();
 

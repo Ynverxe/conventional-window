@@ -1,5 +1,6 @@
 package com.github.ynverxe.conventionalwindow.bukkit;
 
+import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
 import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.Collection;
@@ -30,17 +31,12 @@ public class BukkitPlatformHandler implements PlatformHandler<Player> {
   }
 
   @Override
-  public Collection<Player> viewers(@NotNull Inventory inventory) {
-    /*
-     return backingInventory.getViewers().stream()
-        .filter(humanEntity -> humanEntity instanceof Player)
-        .map(humanEntity -> (Player) humanEntity)
-        .toList();
-     */
-
-    return inventory.getViewers()
-        .stream()
-        .map(player -> ((WrappedMinestomPlayer) player).bukkitPlayer())
+  public Collection<MenuViewer<Player>> viewers(@NotNull Inventory inventory) {
+    return inventory.getViewers().stream()
+        .map(player -> {
+          WrappedMinestomPlayer minestomPlayer = ((WrappedMinestomPlayer) player);
+          return new MenuViewer<>(minestomPlayer.bukkitPlayer(), minestomPlayer);
+        })
         .toList();
   }
 }
