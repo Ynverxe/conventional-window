@@ -5,6 +5,7 @@ import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -22,6 +23,8 @@ public class Plugin extends JavaPlugin implements Listener {
 
   @Override
   public void onEnable() {
+    MinecraftServer.init();
+
     BukkitMenuContainer<Inventory> menuContainer = new BukkitMenuContainer<>(this, type -> new Inventory(type, Component.empty()));
 
     menu = menuContainer.newMenu(InventoryType.CHEST_6_ROW);
@@ -50,7 +53,7 @@ public class Plugin extends JavaPlugin implements Listener {
         .buildTask(
             () -> {
               int random = ThreadLocalRandom.current().nextInt();
-              //menu.renderTitle(Component.text("Random number: " + random));
+              menu.renderTitle(Component.text("Random number: " + random));
             })
         .repeat(TaskSchedule.tick(1))
         .schedule();
