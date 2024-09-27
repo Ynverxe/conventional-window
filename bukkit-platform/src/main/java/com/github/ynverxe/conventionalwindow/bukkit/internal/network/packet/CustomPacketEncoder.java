@@ -1,6 +1,8 @@
 package com.github.ynverxe.conventionalwindow.bukkit.internal.network.packet;
 
 import com.github.ynverxe.conventionalwindow.bukkit.nms.common.MinestomPacketHolder;
+import com.github.ynverxe.conventionalwindow.bukkit.nms.common.NMSModule;
+import com.github.ynverxe.conventionalwindow.bukkit.player.WrappedMinestomPlayer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -12,13 +14,18 @@ import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NioBufferExtractor;
 import net.minestom.server.network.packet.server.ServerPacket;
 import net.minestom.server.network.packet.server.ServerPacket.Play;
+import net.minestom.server.network.packet.server.play.CloseWindowPacket;
+import org.jetbrains.annotations.NotNull;
 
 public class CustomPacketEncoder extends MessageToByteEncoder<Object> {
 
   private final MessageToByteEncoder<?> vanillaDelegate;
+  private final WrappedMinestomPlayer player;
 
-  public CustomPacketEncoder(MessageToByteEncoder<?> vanillaDelegate) {
+  public CustomPacketEncoder(@NotNull MessageToByteEncoder<?> vanillaDelegate,
+      @NotNull WrappedMinestomPlayer player) {
     this.vanillaDelegate = Objects.requireNonNull(vanillaDelegate, "vanillaDelegate");
+    this.player = Objects.requireNonNull(player, "player");
   }
 
   @Override
@@ -29,9 +36,27 @@ public class CustomPacketEncoder extends MessageToByteEncoder<Object> {
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
       throws Exception {
+
     if (msg instanceof MinestomPacketHolder) {
+      // When an inventory is closed silently, we use
+      // Player#closeInventory() to maintain the minestom close logic
+      // so we need to ignore the close packet to avoid the bukkit inventory being closed
+      if (((MinestomPacketHolder) msg).minestomPacket() instanceof CloseWindowPacket && !player.sendClosePacket) {
+        player.sendClosePacket = true; // reset
+        return;
+      }
+
       super.write(ctx, msg, promise);
     } else {
+      int id = NMSModule.instance().packetId(msg);
+
+      // Detect when a bukkit inventory is open and close the minestom inventory silently
+      if (id == 0x33) { // Open Screen packet
+        if (player.hasBukkitInventoryOpen()) {
+          player.closeInventorySilently();
+        }
+      }
+
       vanillaDelegate.write(ctx, msg, promise);
     }
   }

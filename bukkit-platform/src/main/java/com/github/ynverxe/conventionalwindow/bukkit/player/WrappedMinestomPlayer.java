@@ -17,6 +17,8 @@ public class WrappedMinestomPlayer extends Player {
   @Internal
   private int bukkitContainerId;
   private final @NotNull org.bukkit.entity.Player bukkitPlayer;
+  @Internal
+  public boolean sendClosePacket = true;
 
   public WrappedMinestomPlayer(@NotNull org.bukkit.entity.Player bukkitPlayer) {
     super(bukkitPlayer.getUniqueId(), bukkitPlayer.getName(), new PlayerConnectionBridge(bukkitPlayer));
@@ -54,6 +56,16 @@ public class WrappedMinestomPlayer extends Player {
 
   public boolean isMenuOpen() {
     return getOpenInventory() != null;
+  }
+
+  public boolean hasBukkitInventoryOpen() {
+    return bukkitPlayer.getOpenInventory().getType() != InventoryType.CRAFTING;
+  }
+
+  @Internal
+  public void closeInventorySilently() {
+    this.sendClosePacket = false;
+    this.closeInventory();
   }
 
   public static @NotNull Optional<WrappedMinestomPlayer> fromPlayer(@NotNull org.bukkit.entity.Player player) {

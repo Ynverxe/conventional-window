@@ -100,7 +100,7 @@ public class PlayerConnectionBridge extends PlayerConnection {
 
     MessageToByteEncoder<?> vanillaPacketEncoder = (MessageToByteEncoder<?>) channelPipeline.get("encoder");
     if (channelPipeline.get(ENCODER_NAMESPACE) == null) {
-      channelPipeline.replace("encoder", ENCODER_NAMESPACE, new CustomPacketEncoder(vanillaPacketEncoder));
+      channelPipeline.replace("encoder", ENCODER_NAMESPACE, new CustomPacketEncoder(vanillaPacketEncoder, wrappedMinestomPlayer));
     }
 
     ByteToMessageDecoder vanillaPacketDecoder = (ByteToMessageDecoder) channelPipeline.get("decoder");
