@@ -13,23 +13,21 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
+public interface MenuItem<T extends MenuItem<T>> extends Copyable<T> {
 
   @Nullable ItemStack get(@NotNull ItemContext context);
 
-  @NotNull ItemClickHandler<E> clickHandler();
+  @NotNull ItemClickHandler clickHandler();
 
   @Contract("_ -> new")
-  <S, I extends MenuItem<S, I>> MenuItem<S, I> withClickHandler(@NotNull ItemClickHandler<S> clickHandler);
+  T withClickHandler(@NotNull ItemClickHandler clickHandler);
 
   /**
    * @param pairs An object array containing the data to be converted into a {@link Entry} list.
    * @return A new SequentialMenuItem with the provided entry data.
    * @see SequentialMenuItem#withEntries(Object...)
-   * @param <E> The inventory click event type.
    */
-  @SuppressWarnings("unchecked")
-  static @NotNull <E> SequentialMenuItem<E> sequential(@NotNull Object... pairs) {
+  static @NotNull SequentialMenuItem sequential(@NotNull Object... pairs) {
     return SequentialMenuItem.EMPTY.withEntries(pairs);
   }
 
@@ -42,10 +40,8 @@ public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
    * @param durations A collection of {@link Duration} used to create an {@link Entry} list.
    * @return A new SequentialMenuItem with the provided entry data.
    * @see SequentialMenuItem#withEntries(Collection, Collection)
-   * @param <E> The inventory click event type.
    */
-  @SuppressWarnings("unchecked")
-  static @NotNull <E> SequentialMenuItem<E> sequential(@NotNull Collection<ItemStack> itemStacks, @NotNull Collection<Duration> durations) {
+  static @NotNull SequentialMenuItem sequential(@NotNull Collection<ItemStack> itemStacks, @NotNull Collection<Duration> durations) {
     return SequentialMenuItem.EMPTY.withEntries(itemStacks, durations);
   }
 
@@ -54,18 +50,17 @@ public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
    * @return A new SequentialMenuItem with the provided entry data.
    * @param <E> The inventory click event type.
    */
-  static @NotNull <E> SequentialMenuItem<E> sequential(@NotNull Entry... entries) {
-    return new SequentialMenuItem<>(Arrays.asList(entries), ItemClickHandler.cancelClick());
+  static @NotNull SequentialMenuItem sequential(@NotNull Entry... entries) {
+    return new SequentialMenuItem(Arrays.asList(entries), ItemClickHandler.cancelClick());
   }
 
   /**
    * @param itemStack The ItemStack to be used.
    * @param updateTimes The times that the ItemStack can be accessed.
    * @return a new StaticMenuItem.
-   * @param <E> The inventory click event type.
    */
-  static @NotNull <E> StaticMenuItem<E> simple(@NotNull ItemStack itemStack, int updateTimes) {
-    return new StaticMenuItem<>(updateTimes, itemStack, ItemClickHandler.cancelClick());
+  static @NotNull StaticMenuItem simple(@NotNull ItemStack itemStack, int updateTimes) {
+    return new StaticMenuItem(updateTimes, itemStack, ItemClickHandler.cancelClick());
   }
 
   /**
@@ -73,7 +68,7 @@ public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
    * @return a new StaticMenuItem that retrieves the provided ItemStack always.
    * @param <E> The inventory click event type.
    */
-  static @NotNull <E> StaticMenuItem<E> simple(@NotNull ItemStack itemStack) {
+  static @NotNull StaticMenuItem simple(@NotNull ItemStack itemStack) {
     return simple(itemStack, -1);
   }
 
@@ -83,7 +78,7 @@ public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
    * @return a new StaticMenuItem
    * @param <E> The inventory click event type.
    */
-  static @NotNull <E> StaticMenuItem<E> simple(@NotNull Material material, int updateTimes) {
+  static @NotNull StaticMenuItem simple(@NotNull Material material, int updateTimes) {
     return simple(ItemStack.of(material), updateTimes);
   }
 
@@ -92,7 +87,7 @@ public interface MenuItem<E, T extends MenuItem<E, T>> extends Copyable<T> {
    * @return a new StaticMenuItem that retrieves the created ItemStack always.
    * @param <E> The inventory click event type.
    */
-  static @NotNull <E> StaticMenuItem<E> simple(@NotNull Material material) {
+  static @NotNull StaticMenuItem simple(@NotNull Material material) {
     return simple(material, -1);
   }
 }

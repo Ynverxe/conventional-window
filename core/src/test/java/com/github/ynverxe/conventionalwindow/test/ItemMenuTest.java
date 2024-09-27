@@ -30,8 +30,8 @@ public class ItemMenuTest {
   public void testOrder() {
     MinestomMenu<Inventory> minestomMenu = CONTAINER.newMenu(InventoryType.CHEST_1_ROW);
 
-    MenuItem<InventoryPreClickEvent, ?> apple = MenuItem.simple(Material.APPLE);
-    MenuItem<InventoryPreClickEvent, ?> pane = MenuItem.simple(Material.BLACK_STAINED_GLASS_PANE);
+    StaticMenuItem apple = MenuItem.simple(Material.APPLE);
+    StaticMenuItem pane = MenuItem.simple(Material.BLACK_STAINED_GLASS_PANE);
 
     // Glass pane will be set in slot 0 and apple pushed to slot 1.
     minestomMenu.pageableItemContainer().add(apple);
@@ -47,13 +47,13 @@ public class ItemMenuTest {
   @Test
   public void testSimpleMenuItem() {
     ItemStack apple = ItemStack.of(Material.APPLE);
-    // Create a MenuItem that stop returning non-null item after two calls.
-    StaticMenuItem<?> menuItem = MenuItem.simple(apple, 2);
+    // Create a MenuItem that stops returning a non-null item after two calls.
+    StaticMenuItem menuItem = MenuItem.simple(apple, 2);
 
-    assertEquals(apple, menuItem.get(null));
-    assertEquals(apple, menuItem.get(null));
+    assertEquals(apple, menuItem.get(null)); // 1st call
+    assertEquals(apple, menuItem.get(null)); // 2nd call
 
-    assertNull(menuItem.get(null));
+    assertNull(menuItem.get(null)); // must be null at the 3rd call
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ItemMenuTest {
     ItemStack gold = ItemStack.of(Material.GOLD_INGOT);
     ItemStack diamond = ItemStack.of(Material.DIAMOND);
 
-    SequentialMenuItem<?> sequentialMenuItem = MenuItem.sequential(iron, 1, gold, 1, diamond, 1);
+    SequentialMenuItem sequentialMenuItem = MenuItem.sequential(iron, 1, gold, 1, diamond, 1);
 
     assertEquals(iron, sequentialMenuItem.get(null));
     waitMillis(50); // iron -> gold

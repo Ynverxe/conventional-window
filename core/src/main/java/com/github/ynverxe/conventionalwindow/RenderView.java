@@ -6,13 +6,13 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface RenderView<I extends MenuItem<?, ?>> {
+public interface RenderView {
 
-  @NotNull LinkedHashMap<Integer, I> asMap();
+  @NotNull LinkedHashMap<Integer, MenuItem<?>> asMap();
 
-  @Nullable I getItem(int slot);
+  @Nullable MenuItem<?> getItem(int slot);
 
-  default @NotNull Optional<I> optionalItem(int slot) {
+  default @NotNull Optional<MenuItem<?>> optionalItem(int slot) {
     return Optional.ofNullable(getItem(slot));
   }
 

@@ -12,20 +12,20 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList<I> implements
-    AbstractItemContainer<I> {
+public class StackedItemContainer extends AbstractList<MenuItem<?>> implements
+    AbstractItemContainer {
 
-  private final Menu<I, ?, ?, ?> menu;
-  private final List<I> menuItems = new ArrayList<>();
+  private final Menu<?, ?, ?> menu;
+  private final List<MenuItem<?>> menuItems = new ArrayList<>();
   private final Listener listener;
 
-  public StackedItemContainer(@NotNull Menu<I, ?, ?, ?> menu, @NotNull Listener listener) {
+  public StackedItemContainer(@NotNull Menu<?, ?, ?> menu, @NotNull Listener listener) {
     this.menu = Objects.requireNonNull(menu, "menu");
     this.listener = Objects.requireNonNull(listener, "listener");
   }
 
   @Override
-  public @Nullable I get(int index) {
+  public @Nullable MenuItem<?> get(int index) {
     if (index < 0 || index >= count())
       throw new IndexOutOfBoundsException("index out of bounds (" + index + ")");
 
@@ -38,33 +38,33 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
   }
 
   @Override
-  public I set(int index, @Nullable I element) {
-    I previous = menuItems.set(index, element);
+  public MenuItem<?> set(int index, @Nullable MenuItem<?> element) {
+    MenuItem<?> previous = menuItems.set(index, element);
     listener.handlePageableItemInsertion(index, element);
     return previous;
   }
 
   @Contract("_, _ -> this")
-  public StackedItemContainer<I> insert(int index, @Nullable I element) {
+  public StackedItemContainer insert(int index, @Nullable MenuItem<?> element) {
     set(index, element);
     return this;
   }
 
   @Override
-  public void add(int index, @Nullable I element) {
+  public void add(int index, @Nullable MenuItem<?> element) {
     menuItems.add(index, element);
     listener.handlePageableItemsShift(index, element);
   }
 
   @Contract("_ -> this")
-  public StackedItemContainer<I> append(@Nullable I... providers) {
+  public StackedItemContainer append(@Nullable MenuItem<?>... providers) {
     this.addAll(Arrays.asList(providers));
     return this;
   }
 
   @Override
-  public I remove(int index) {
-    I previous = menuItems.remove(index);
+  public MenuItem<?> remove(int index) {
+    MenuItem<?> previous = menuItems.remove(index);
     if (previous != null) {
       listener.handlePageableItemInsertion(index, previous);
     }
@@ -84,7 +84,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
   }
 
   @Override
-  public StackedItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I menuItem) {
+  public StackedItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
 
@@ -94,7 +94,7 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
         diff--;
       }
 
-      add((I) menuItem.copy());
+      add(menuItem.copy());
     }
 
     return this;
@@ -106,8 +106,8 @@ public class StackedItemContainer<I extends MenuItem<?, ?>> extends AbstractList
   }
 
   public interface Listener {
-    void handlePageableItemInsertion(int index, @Nullable MenuItem<?, ?> menuItem);
+    void handlePageableItemInsertion(int index, @Nullable MenuItem<?> menuItem);
 
-    void handlePageableItemsShift(int index, @Nullable MenuItem<?, ?> menuItem);
+    void handlePageableItemsShift(int index, @Nullable MenuItem<?> menuItem);
   }
 }

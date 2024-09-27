@@ -20,13 +20,10 @@ import org.jetbrains.annotations.Nullable;
  * A MenuItem that returns a sequence of {@link ItemStack} distributed in the time.
  * This class holds a list of {@link Entry}. An entry holds an {@link ItemStack} and a {@link Duration}
  * representing the window of time that the {@link Entry#itemStack} is accessible.
- *
- * @param <E> The inventory click event type.
  */
-public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuItem<E>, SequentialMenuItem<?>> {
+public class SequentialMenuItem extends AbstractMenuItem<SequentialMenuItem> {
 
-  @SuppressWarnings("rawtypes")
-  static final @NotNull SequentialMenuItem EMPTY = new SequentialMenuItem<>(Collections.emptyList(), ItemClickHandler.cancelClick());
+  static final @NotNull SequentialMenuItem EMPTY = new SequentialMenuItem(Collections.emptyList(), ItemClickHandler.cancelClick());
 
   private final List<Entry> entries;
   /**
@@ -39,7 +36,7 @@ public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuIte
   private long lastUpdatedTime = System.currentTimeMillis();
 
   @Internal
-  public SequentialMenuItem(@NotNull List<Entry> entries, @NotNull ItemClickHandler<E> clickHandler) {
+  public SequentialMenuItem(@NotNull List<Entry> entries, @NotNull ItemClickHandler clickHandler) {
     super(clickHandler);
     this.entries = entries;
   }
@@ -75,7 +72,7 @@ public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuIte
   }
 
   @Contract("_, _ -> new")
-  public SequentialMenuItem<E> withEntry(@NotNull ItemStack itemStack, @NotNull Duration delayDuration) {
+  public SequentialMenuItem withEntry(@NotNull ItemStack itemStack, @NotNull Duration delayDuration) {
     List<Entry> newEntries = new ArrayList<>(entries.size() + 1);
     newEntries.addAll(entries);
     newEntries.add(new Entry(delayDuration, itemStack));
@@ -83,7 +80,7 @@ public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuIte
   }
 
   @Contract("_ -> new")
-  public SequentialMenuItem<E> withEntries(@NotNull Object @NotNull... pairs) {
+  public SequentialMenuItem withEntries(@NotNull Object @NotNull... pairs) {
     List<Entry> newEntries = new ArrayList<>(this.entries);
 
     for (int i = 0; i < pairs.length; i++) {
@@ -111,13 +108,13 @@ public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuIte
     return newItem(newEntries);
   }
 
-  public @NotNull SequentialMenuItem<E> withEntries(@NotNull Entry... entries) {
+  public @NotNull SequentialMenuItem withEntries(@NotNull Entry... entries) {
     List<Entry> newEntries = new ArrayList<>(this.entries);
     newEntries.addAll(Arrays.asList(entries));
     return newItem(newEntries);
   }
 
-  public @NotNull SequentialMenuItem<E> withEntries(@NotNull Collection<ItemStack> itemStacks, @NotNull Collection<Duration> durations) {
+  public @NotNull SequentialMenuItem withEntries(@NotNull Collection<ItemStack> itemStacks, @NotNull Collection<Duration> durations) {
     if (itemStacks.size() != durations.size()) {
       throw new IllegalArgumentException("ItemStacks and Durations have not the same length");
     }
@@ -160,28 +157,27 @@ public class SequentialMenuItem<E> extends AbstractMenuItem<E, SequentialMenuIte
   }
 
   @Override
-  public @NotNull SequentialMenuItem<E> copy() {
+  public @NotNull SequentialMenuItem copy() {
     return newItem(new ArrayList<>(entries));
   }
 
   @SuppressWarnings("unchecked")
-  private @NotNull SequentialMenuItem<E> newItem(@NotNull List<Entry> entries) {
+  private @NotNull SequentialMenuItem newItem(@NotNull List<Entry> entries) {
     if (this.entries == entries) {
       throw new IllegalArgumentException("Cannot use the same entry collection");
     }
 
-    ItemClickHandler<E> clickHandler = clickHandler();
+    ItemClickHandler clickHandler = clickHandler();
     if (clickHandler instanceof Copyable<?>) {
-      clickHandler = ((Copyable<ItemClickHandler<E>>) clickHandler).copy();
+      clickHandler = ((Copyable<ItemClickHandler>) clickHandler).copy();
     }
 
-    return new SequentialMenuItem<>(entries, clickHandler);
+    return new SequentialMenuItem(entries, clickHandler);
   }
 
   @Override
-  protected @NotNull <S> SequentialMenuItem<S> create(
-      @NotNull ItemClickHandler<S> clickHandler) {
-    return new SequentialMenuItem<>(new ArrayList<>(entries), clickHandler);
+  protected @NotNull SequentialMenuItem create(@NotNull ItemClickHandler clickHandler) {
+    return new SequentialMenuItem(new ArrayList<>(this.entries), clickHandler);
   }
 
   public static class Entry {

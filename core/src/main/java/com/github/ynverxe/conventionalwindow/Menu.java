@@ -51,9 +51,9 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
 
   @NotNull @UnmodifiableView List<ItemStack> renderedItems();
 
-  @NotNull RelativeItemContainer<I> staticItemContainer();
+  @NotNull RelativeItemContainer staticItemContainer();
 
-  @NotNull StackedItemContainer<I> pageableItemContainer();
+  @NotNull StackedItemContainer pageableItemContainer();
 
   int capacity();
 
@@ -75,6 +75,6 @@ public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends S
   @Contract("_ -> this")
   M configureItemContext(@NotNull Consumer<ItemContext> configurator);
 
-  @NotNull RenderView<I> renderView();
+  @NotNull RenderView renderView();
 
 }

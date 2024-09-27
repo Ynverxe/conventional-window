@@ -3,31 +3,29 @@ package com.github.ynverxe.conventionalwindow.item;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unchecked")
-public abstract class AbstractMenuItem<E, T extends AbstractMenuItem<E, T, I>, I extends AbstractMenuItem<?, ?, ?>> implements MenuItem<E, T> {
+public abstract class AbstractMenuItem<T extends AbstractMenuItem<T>> implements MenuItem<T> {
 
-  private final @NotNull ItemClickHandler<E> clickHandler;
+  private final @NotNull ItemClickHandler clickHandler;
 
-  protected AbstractMenuItem(@NotNull ItemClickHandler<E> clickHandler) {
+  protected AbstractMenuItem(@NotNull ItemClickHandler clickHandler) {
     this.clickHandler = Objects.requireNonNull(clickHandler, "clickHandler");
   }
 
   @Override
-  public @NotNull ItemClickHandler<E> clickHandler() {
+  public @NotNull ItemClickHandler clickHandler() {
     return clickHandler;
   }
 
   @Override
-  public <S, I extends MenuItem<S, I>> MenuItem<S, I> withClickHandler(
-      @NotNull ItemClickHandler<S> clickHandler) {
-    return (MenuItem<S, I>) create(clickHandler);
+  public T withClickHandler(@NotNull ItemClickHandler clickHandler) {
+    return create(clickHandler);
   }
 
   @Override
   public @NotNull T copy() {
-    return (T) create(clickHandler);
+    return create(clickHandler);
   }
 
-  protected abstract <S> @NotNull I create(@NotNull ItemClickHandler<S> clickHandler);
+  protected abstract @NotNull T create(@NotNull ItemClickHandler clickHandler);
 
 }

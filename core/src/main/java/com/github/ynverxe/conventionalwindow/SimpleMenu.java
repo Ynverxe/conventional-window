@@ -1,6 +1,5 @@
 package com.github.ynverxe.conventionalwindow;
 
-import com.github.ynverxe.conventionalwindow.item.ItemClickHandler;
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
@@ -21,15 +20,15 @@ import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventory, T extends SimpleMenu<I, V, C, T>>
-    implements Menu<I, T, V, C> {
+public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V, C, T>>
+    implements Menu<T, V, C> {
 
   private final C inventory;
   private final PlatformHandler<V> platformHandler;
   private final List<ItemStack> renderedItemStacks = new ArrayList<>();
-  private final StackedItemContainer<I> pageableItems;
-  private final RelativeItemContainer<I> staticItems;
-  private final ItemRenderer<I> itemRenderer;
+  private final StackedItemContainer pageableItems;
+  private final RelativeItemContainer staticItems;
+  private final ItemRenderer itemRenderer;
   private final Pagination<T> pagination;
 
   private final @NotNull Scheduler scheduler = Scheduler.newScheduler();
@@ -41,9 +40,9 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   public SimpleMenu(@NotNull C inventory, @NotNull PlatformHandler<V> platformHandler) {
     this.inventory = inventory;
     this.platformHandler = platformHandler;
-    this.itemRenderer = new ItemRenderer<>(this, capacity());
-    this.pageableItems = new StackedItemContainer<>(this, this.itemRenderer);
-    this.staticItems = new RelativeItemContainer<>(this, this.itemRenderer, inventory.getSize());
+    this.itemRenderer = new ItemRenderer(this, capacity());
+    this.pageableItems = new StackedItemContainer(this, this.itemRenderer);
+    this.staticItems = new RelativeItemContainer(this, this.itemRenderer, inventory.getSize());
     this.pagination = new Pagination<>((T) this, itemRenderer);
     this.itemRenderer.init();
   }
@@ -72,12 +71,12 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   }
 
   @Override
-  public @NotNull RelativeItemContainer<I> staticItemContainer() {
+  public @NotNull RelativeItemContainer staticItemContainer() {
     return staticItems;
   }
 
   @Override
-  public @NotNull StackedItemContainer<I> pageableItemContainer() {
+  public @NotNull StackedItemContainer pageableItemContainer() {
     return pageableItems;
   }
 
@@ -137,7 +136,7 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   }
 
   @Override
-  public @NotNull RenderView<I> renderView() {
+  public @NotNull RenderView renderView() {
     return itemRenderer;
   }
 
@@ -145,5 +144,4 @@ public abstract class SimpleMenu<I extends MenuItem<?, ?>, V, C extends Inventor
   public @NotNull Scheduler scheduler() {
     return scheduler;
   }
-
 }

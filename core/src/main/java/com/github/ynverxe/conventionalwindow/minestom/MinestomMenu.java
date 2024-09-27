@@ -12,13 +12,13 @@ import net.minestom.server.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 public class MinestomMenu<T extends Inventory> extends
-    SimpleMenu<MenuItem<InventoryPreClickEvent, ?>, Player, T, MinestomMenu<T>> {
+    SimpleMenu<Player, T, MinestomMenu<T>> {
 
   private final EventListener<InventoryPreClickEvent> inventoryPreClickEventListener = EventListener.of(
       InventoryPreClickEvent.class,
       inventoryPreClickEvent -> {
         int slot = inventoryPreClickEvent.getSlot();
-        MenuItem<InventoryPreClickEvent, ?> menuItem = renderView().getItem(slot);
+        MenuItem<?> menuItem = renderView().getItem(slot);
         if (menuItem == null) return;
 
         ItemContext itemContext = createItemContext();

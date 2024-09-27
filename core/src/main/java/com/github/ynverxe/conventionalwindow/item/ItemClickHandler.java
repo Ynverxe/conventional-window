@@ -1,13 +1,14 @@
 package com.github.ynverxe.conventionalwindow.item;
 
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import org.jetbrains.annotations.NotNull;
 
-public interface ItemClickHandler<E> {
+public interface ItemClickHandler {
 
-  boolean handleItemClick(@NotNull E event, @NotNull ItemContext context);
+  boolean handleItemClick(@NotNull InventoryPreClickEvent event, @NotNull ItemContext context);
 
-  static <E> @NotNull ItemClickHandler<E> cancelClick() {
+  static @NotNull ItemClickHandler cancelClick() {
     return (event,context) -> true;
   }
 }

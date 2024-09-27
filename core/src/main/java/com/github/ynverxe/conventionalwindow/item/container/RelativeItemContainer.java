@@ -9,43 +9,43 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RelativeItemContainer<I extends MenuItem<?, ?>> extends ConcurrentHashMap<Integer, I>
-    implements AbstractItemContainer<I> {
+public class RelativeItemContainer extends ConcurrentHashMap<Integer, MenuItem<?>>
+    implements AbstractItemContainer {
 
-  private final Menu<I, ?, ?, ?> menu;
+  private final Menu<?, ?, ?> menu;
   private final Listener listener;
   private final int capacity;
 
-  public RelativeItemContainer(@NotNull Menu<I, ?, ?, ?> menu, @NotNull Listener listener, int capacity) {
+  public RelativeItemContainer(@NotNull Menu<?, ?, ?> menu, @NotNull Listener listener, int capacity) {
     this.menu = Objects.requireNonNull(menu, "menu");
     this.listener = Objects.requireNonNull(listener, "listener");
     this.capacity = capacity;
   }
 
   @Override
-  public @Nullable I put(@NotNull Integer key, @Nullable I value) {
+  public @Nullable MenuItem<?> put(@NotNull Integer key, @Nullable MenuItem<?> value) {
     if (key < 0 || key > maxFindableIndex())
       throw new IndexOutOfBoundsException("key out of bounds (" + key + ")");
 
     if (value == null) return remove(key);
 
-    I previous = super.put(key, value);
+    MenuItem<?> previous = super.put(key, value);
     listener.handleStaticItemInsert(key, value, previous);
     return previous;
   }
 
   @Override
   public boolean remove(Object key, Object value) {
-    I removed = super.remove(key);
+    MenuItem<?> removed = super.remove(key);
     if (removed != null) {
-      listener.handleStaticItemInsert((int) key, (I) value, removed);
+      listener.handleStaticItemInsert((int) key, (MenuItem<?>) value, removed);
     }
 
     return removed != null;
   }
 
   @Override
-  public @Nullable I get(int index) {
+  public @Nullable MenuItem<?> get(int index) {
     if (index < 0 || index > maxFindableIndex())
       throw new IndexOutOfBoundsException("key out of bounds (" + index + ")");
 
@@ -75,10 +75,10 @@ public class RelativeItemContainer<I extends MenuItem<?, ?>> extends ConcurrentH
   }
 
   @Override
-  public RelativeItemContainer<I> fill(@NotNull SlotIterator iterator, @NotNull I menuItem) {
+  public @NotNull RelativeItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
-      put(next, (I) menuItem.copy());
+      put(next, menuItem.copy());
     }
 
     return this;
@@ -86,6 +86,6 @@ public class RelativeItemContainer<I extends MenuItem<?, ?>> extends ConcurrentH
 
   @Internal
   public interface Listener {
-    void handleStaticItemInsert(int key, @Nullable MenuItem<?, ?> itemProvider, @Nullable MenuItem<?, ?> previous);
+    void handleStaticItemInsert(int key, @Nullable MenuItem<?> itemProvider, @Nullable MenuItem<?> previous);
   }
 }

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, StaticMenuItem<?>> {
+public class StaticMenuItem extends AbstractMenuItem<StaticMenuItem> {
 
   private final int updateTimes;
   private int updateCount = 0;
@@ -24,7 +24,7 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
    * @param itemStack    The item stack that this menuItem will retrieve.
    * @param clickHandler The click handler used to handle click events made to this menu item.
    */
-  protected StaticMenuItem(int updateTimes, @NotNull ItemStack itemStack, @NotNull ItemClickHandler<E> clickHandler) {
+  protected StaticMenuItem(int updateTimes, @NotNull ItemStack itemStack, @NotNull ItemClickHandler clickHandler) {
     super(clickHandler);
     this.updateTimes = updateTimes;
     this.itemStack = Objects.requireNonNull(itemStack, "itemStack");
@@ -51,7 +51,7 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
   }
 
   @Contract("_ -> new")
-  public StaticMenuItem<E> withUpdateTimes(@NotNull ItemClickHandler<E> clickHandler) {
+  public StaticMenuItem withUpdateTimes(@NotNull ItemClickHandler clickHandler) {
     return create(clickHandler);
   }
 
@@ -62,7 +62,7 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
    * @return a new StaticMenuItem with the passed updateTimes
    */
   @Contract("_ -> new")
-  public StaticMenuItem<E> withUpdateTimes(int updateTimes) {
+  public StaticMenuItem withUpdateTimes(int updateTimes) {
     return newItem(itemStack, updateTimes);
   }
 
@@ -80,7 +80,7 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
    * @return a new StaticMenuItem with the passed itemStack
    */
   @Contract("_ -> new")
-  public StaticMenuItem<E> withItemStack(@NotNull ItemStack itemStack) {
+  public StaticMenuItem withItemStack(@NotNull ItemStack itemStack) {
     return newItem(itemStack, updateTimes);
   }
 
@@ -91,27 +91,27 @@ public class StaticMenuItem<E> extends AbstractMenuItem<E, StaticMenuItem<E>, St
    * @return a new StaticMenuItem with the passed itemStack
    */
   @Contract("_ -> new")
-  public StaticMenuItem<E> withItemStack(@NotNull Function<@NotNull ItemStack, @NotNull ItemStack> menuItem) {
+  public StaticMenuItem withItemStack(@NotNull Function<@NotNull ItemStack, @NotNull ItemStack> menuItem) {
     return newItem(menuItem.apply(itemStack), updateTimes);
   }
 
   @Override
-  public @NotNull StaticMenuItem<E> copy() {
+  public @NotNull StaticMenuItem copy() {
     return newItem(itemStack, updateTimes);
   }
 
   @SuppressWarnings("unchecked")
-  public @NotNull StaticMenuItem<E> newItem(@NotNull ItemStack itemStack, int updateTimes) {
-    ItemClickHandler<E> clickHandler = clickHandler();
+  public @NotNull StaticMenuItem newItem(@NotNull ItemStack itemStack, int updateTimes) {
+    ItemClickHandler clickHandler = clickHandler();
     if (clickHandler instanceof Copyable<?>) {
-      clickHandler = ((Copyable<ItemClickHandler<E>>) clickHandler).copy();
+      clickHandler = ((Copyable<ItemClickHandler>) clickHandler).copy();
     }
 
-    return new StaticMenuItem<>(updateTimes, itemStack, clickHandler);
+    return new StaticMenuItem(updateTimes, itemStack, clickHandler);
   }
 
   @Override
-  protected @NotNull <S> StaticMenuItem<S> create(@NotNull ItemClickHandler<S> clickHandler) {
-    return new StaticMenuItem<>(updateTimes, itemStack, clickHandler);
+  protected @NotNull StaticMenuItem create(@NotNull ItemClickHandler clickHandler) {
+    return new StaticMenuItem(updateTimes, itemStack, clickHandler);
   }
 }

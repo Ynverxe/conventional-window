@@ -20,12 +20,12 @@ public class AirMenuItem implements MenuItem {
   }
 
   @Override
-  public @NotNull ItemClickHandler<Object> clickHandler() {
+  public @NotNull ItemClickHandler clickHandler() {
     return ItemClickHandler.cancelClick();
   }
 
   @Override
-  public AirMenuItem withClickHandler(@NotNull ItemClickHandler clickHandler) {
+  public MenuItem withClickHandler(@NotNull ItemClickHandler clickHandler) {
     return this;
   }
 

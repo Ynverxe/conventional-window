@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class Pagination<M extends Menu<?, M, ?, ?>> {
+public class Pagination<M extends Menu<M, ?, ?>> {
 
   private final @NotNull M menu;
-  private final @NotNull ItemRenderer<?> renderer;
+  private final @NotNull ItemRenderer renderer;
   private final AtomicInteger page = new AtomicInteger(0);
 
-  public Pagination(@NotNull M menu, @NotNull ItemRenderer<?> renderer) {
+  public Pagination(@NotNull M menu, @NotNull ItemRenderer renderer) {
     this.menu = menu;
     this.renderer = renderer;
   }

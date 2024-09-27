@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface AbstractItemContainer<T extends MenuItem<?, ?>> {
+public interface AbstractItemContainer {
 
   /**
    * Returns the MenuItem associated with the specified index (from zero to {@link #maxFindableIndex()}).
@@ -23,7 +23,7 @@ public interface AbstractItemContainer<T extends MenuItem<?, ?>> {
    * than the stored elements in the container or when it's expected to be a key
    * and is higher than the container capacity.
    */
-  @Nullable T get(int index) throws IndexOutOfBoundsException;
+  @Nullable MenuItem<?> get(int index) throws IndexOutOfBoundsException;
 
   /**
    * @return the stored element count or a fixed number on {@link com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer}
@@ -35,6 +35,6 @@ public interface AbstractItemContainer<T extends MenuItem<?, ?>> {
   int nonNullCount();
 
   @Contract("_, _ -> this")
-  AbstractItemContainer<T> fill(@NotNull SlotIterator iterator, @NotNull T menuItem);
+  AbstractItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem);
 
 }

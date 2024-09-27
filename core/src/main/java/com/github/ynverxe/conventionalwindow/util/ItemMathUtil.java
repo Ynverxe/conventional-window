@@ -3,6 +3,7 @@ package com.github.ynverxe.conventionalwindow.util;
 import com.github.ynverxe.conventionalwindow.Menu;
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public final class ItemMathUtil {
 
@@ -16,7 +17,7 @@ public final class ItemMathUtil {
     return startOfPage(capacity, page) + capacity;
   }
 
-  public static void freeSlots(Menu<?, ?, ?, ?> menu, @NotNull List<Integer> list) {
+  public static void freeSlots(Menu<?, ?, ?> menu, @NotNull List<Integer> list) {
     for (int slot = 0; slot < menu.capacity(); slot++) {
       if (isPageableSlot(menu, slot)) {
         list.add(slot);
@@ -24,15 +25,15 @@ public final class ItemMathUtil {
     }
   }
 
-  public static boolean isPageableSlot(Menu<?, ?, ?, ?> menu, int slot) {
+  public static boolean isPageableSlot(Menu<?, ?, ?> menu, int slot) {
     return menu.staticItemContainer().get(slot) == null;
   }
 
-  public static int itemsPerPage(Menu<?, ?, ?, ?> menu) {
+  public static int itemsPerPage(Menu<?, ?, ?> menu) {
     return menu.capacity() - menu.staticItemContainer().nonNullCount();
   }
 
-  public static int pageCount(Menu<?, ?, ?, ?> menu) {
+  public static int pageCount(Menu<?, ?, ?> menu) {
     return (int) Math.ceil((double) menu.pageableItemContainer().count() / itemsPerPage(menu));
   }
 
