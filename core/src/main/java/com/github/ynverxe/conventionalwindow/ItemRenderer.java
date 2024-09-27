@@ -153,7 +153,7 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
   @Override
   public void handlePageableItemInsertion(int index, @Nullable MenuItem<?, ?> menuItem) {
     synchronized (this) {
-      int slot = pageableItemIndexCache.get(index);
+      int slot = pageableItemIndexCache.getOrDefault(index, -1);
 
       if (slot != -1) {
         insertPageableItem(slot, index, menuItem);
