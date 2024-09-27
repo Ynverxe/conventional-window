@@ -2,10 +2,8 @@ package com.github.ynverxe.conventionalwindow.bukkit;
 
 import com.github.ynverxe.conventionalwindow.MenuContainer;
 import com.github.ynverxe.conventionalwindow.SimpleMenu;
-import com.github.ynverxe.conventionalwindow.inventory.CustomAdaptableInventory;
 import java.util.Objects;
 import java.util.function.Function;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import org.bukkit.Bukkit;
