@@ -16,16 +16,12 @@ public final class ItemMathUtil {
     return startOfPage(capacity, page) + capacity;
   }
 
-  public static List<Integer> freeSlots(Menu<?, ?, ?, ?> menu) {
-    List<Integer> free = new ArrayList<>();
-
+  public static void freeSlots(Menu<?, ?, ?, ?> menu, @NotNull List<Integer> list) {
     for (int slot = 0; slot < menu.capacity(); slot++) {
       if (isPageableSlot(menu, slot)) {
-        free.add(slot);
+        list.add(slot);
       }
     }
-
-    return free;
   }
 
   public static boolean isPageableSlot(Menu<?, ?, ?, ?> menu, int slot) {

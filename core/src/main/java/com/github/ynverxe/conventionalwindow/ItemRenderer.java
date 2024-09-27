@@ -52,7 +52,7 @@ public final class ItemRenderer<I extends MenuItem<?, ?>> implements RelativeIte
 
   private void calculateFreeSlots() {
     this.freeSlots.clear();
-    this.freeSlots.addAll(freeSlots(menu));
+    freeSlots(menu, this.freeSlots);
   }
 
   /**
