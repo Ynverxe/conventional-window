@@ -29,4 +29,5 @@ dependencies {
     implementation(project(":bukkit-platform:nms-common"))
     implementation(project(":bukkit-platform:nms-1.20"))
     implementation(project(":bukkit-platform:nms-1.20.5"))
+    implementation(project(":bukkit-platform:nms-1.21"))
 }
