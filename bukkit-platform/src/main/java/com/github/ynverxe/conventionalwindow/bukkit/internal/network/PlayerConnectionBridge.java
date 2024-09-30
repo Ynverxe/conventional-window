@@ -44,7 +44,7 @@ public class PlayerConnectionBridge extends PlayerConnection {
       return;
     }
 
-    int containerId = getPlayer().bukkitContainerId();
+    byte containerId = (byte) getPlayer().bukkitContainerId();
     if (playPacket instanceof OpenWindowPacket openWindowPacket) {
       playPacket = new OpenWindowPacket(
           containerId,
@@ -63,13 +63,25 @@ public class PlayerConnectionBridge extends PlayerConnection {
       );
     }
 
-    if (sendablePacket instanceof SetSlotPacket setSlotPacket) {
-      playPacket = new SetSlotPacket(
-          setSlotPacket.windowId(),
-          containerId,
-          setSlotPacket.slot(),
-          setSlotPacket.itemStack()
-      );
+    if (playPacket instanceof SetSlotPacket setSlotPacket) {
+      int windowId = setSlotPacket.windowId();
+
+      // avoid Network Protocol Error screen message
+      // https://wiki.vg/Protocol#Set_Container_Slot
+      switch (windowId) {
+        case 0:
+        case -1:
+        case -2:
+          break; // do nothing
+        default:
+          playPacket = new SetSlotPacket(
+              containerId,
+              setSlotPacket.stateId(),
+              setSlotPacket.slot(),
+              setSlotPacket.itemStack()
+          );
+          break;
+      }
     }
 
     NMSModule.instance().sendPacket(player, playPacket);
