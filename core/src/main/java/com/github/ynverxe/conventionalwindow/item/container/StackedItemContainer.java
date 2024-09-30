@@ -1,8 +1,7 @@
 package com.github.ynverxe.conventionalwindow.item.container;
 
 import com.github.ynverxe.conventionalwindow.Menu;
-import com.github.ynverxe.conventionalwindow.item.AbstractItemContainer;
-import com.github.ynverxe.conventionalwindow.item.ItemProvider;
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -13,24 +12,24 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StackedItemContainer extends AbstractList<ItemProvider> implements
+public class StackedItemContainer extends AbstractList<MenuItem<?>> implements
     AbstractItemContainer {
 
   private final Menu<?, ?, ?> menu;
-  private final List<ItemProvider> itemProviders = new ArrayList<>();
+  private final List<MenuItem<?>> menuItems = new ArrayList<>();
   private final Listener listener;
 
   public StackedItemContainer(@NotNull Menu<?, ?, ?> menu, @NotNull Listener listener) {
-    this.menu = menu;
+    this.menu = Objects.requireNonNull(menu, "menu");
     this.listener = Objects.requireNonNull(listener, "listener");
   }
 
   @Override
-  public @NotNull ItemProvider get(int index) {
+  public @Nullable MenuItem<?> get(int index) {
     if (index < 0 || index >= count())
       throw new IndexOutOfBoundsException("index out of bounds (" + index + ")");
 
-    return itemProviders.get(index);
+    return menuItems.get(index);
   }
 
   @Override
@@ -39,36 +38,34 @@ public class StackedItemContainer extends AbstractList<ItemProvider> implements
   }
 
   @Override
-  public ItemProvider set(int index, @Nullable ItemProvider element) {
-    element = element != null ? element : ItemProvider.AIR;
-    ItemProvider previous = itemProviders.set(index, element);
+  public MenuItem<?> set(int index, @Nullable MenuItem<?> element) {
+    MenuItem<?> previous = menuItems.set(index, element);
     listener.handlePageableItemInsertion(index, element);
     return previous;
   }
 
   @Contract("_, _ -> this")
-  public StackedItemContainer insert(int index, @Nullable ItemProvider element) {
+  public StackedItemContainer insert(int index, @Nullable MenuItem<?> element) {
     set(index, element);
     return this;
   }
 
   @Override
-  public void add(int index, ItemProvider element) {
-    element = element != null ? element : ItemProvider.AIR;
-    itemProviders.add(index, element);
+  public void add(int index, @Nullable MenuItem<?> element) {
+    menuItems.add(index, element);
     listener.handlePageableItemsShift(index, element);
   }
 
   @Contract("_ -> this")
-  public StackedItemContainer append(@Nullable ItemProvider... providers) {
+  public StackedItemContainer append(@Nullable MenuItem<?>... providers) {
     this.addAll(Arrays.asList(providers));
     return this;
   }
 
   @Override
-  public ItemProvider remove(int index) {
-    ItemProvider previous = itemProviders.remove(index);
-    if (previous != null && previous != ItemProvider.AIR) {
+  public MenuItem<?> remove(int index) {
+    MenuItem<?> previous = menuItems.remove(index);
+    if (previous != null) {
       listener.handlePageableItemInsertion(index, previous);
     }
     return previous;
@@ -76,28 +73,28 @@ public class StackedItemContainer extends AbstractList<ItemProvider> implements
 
   @Override
   public int count() {
-    return itemProviders.size();
+    return menuItems.size();
   }
 
   @Override
   public int nonNullCount() {
-    return (int) itemProviders.stream()
-        .filter(itemProvider -> itemProvider != ItemProvider.AIR)
+    return (int) menuItems.stream()
+        .filter(Objects::nonNull)
         .count();
   }
 
   @Override
-  public StackedItemContainer fill(@NotNull SlotIterator iterator, @NotNull ItemProvider provider) {
+  public StackedItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
 
       int diff = next - size();
       while (diff > 0) {
-        add(ItemProvider.AIR);
+        add(null);
         diff--;
       }
 
-      add(provider.fork());
+      add(menuItem.copy());
     }
 
     return this;
@@ -109,8 +106,8 @@ public class StackedItemContainer extends AbstractList<ItemProvider> implements
   }
 
   public interface Listener {
-    void handlePageableItemInsertion(int index, @NotNull ItemProvider provider);
+    void handlePageableItemInsertion(int index, @Nullable MenuItem<?> menuItem);
 
-    void handlePageableItemsShift(int index, @NotNull ItemProvider provider);
+    void handlePageableItemsShift(int index, @Nullable MenuItem<?> menuItem);
   }
 }

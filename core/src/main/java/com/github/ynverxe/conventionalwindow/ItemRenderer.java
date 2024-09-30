@@ -2,11 +2,14 @@ package com.github.ynverxe.conventionalwindow;
 
 import static com.github.ynverxe.conventionalwindow.util.ItemMathUtil.*;
 
-import com.github.ynverxe.conventionalwindow.item.ItemProvider;
+import com.github.ynverxe.conventionalwindow.item.AirMenuItem;
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
-import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
+import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
+import com.github.ynverxe.conventionalwindow.util.ItemMathUtil;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,12 +18,14 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This class is responsible for distributing and render the items.
+ */
 @Internal
-public final class ItemRenderer<V> implements RelativeItemContainer.Listener, StackedItemContainer.Listener {
+public final class ItemRenderer implements RelativeItemContainer.Listener, StackedItemContainer.Listener, RenderView {
 
-  private final SimpleMenu<V, ?> menu;
-  private final PlatformHandler<V> platformHandler;
-  private final ItemProvider[] providersInUse;
+  private final SimpleMenu<?, ?, ?> menu;
+  private final MenuItem<?>[] menuItemCache;
 
   // index -> slot position
   private final Map<Integer, Integer> pageableItemIndexCache;
@@ -29,112 +34,125 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
   // pagination
   private int page = 0;
 
-  public ItemRenderer(SimpleMenu<V, ?> menu, PlatformHandler<V> platformHandler, int capacity) {
+  public ItemRenderer(SimpleMenu<?, ?, ?> menu, int capacity) {
     this.menu = menu;
-    this.platformHandler = platformHandler;
     this.pageableItemIndexCache = new TreeMap<>(Integer::compareTo);
-    this.providersInUse = new ItemProvider[capacity];
+    this.menuItemCache = new MenuItem[capacity];
   }
 
   void init() {
     this.calculateFreeSlots();
 
-    for (int i = 0; i < menu.capacity(); i++) {
-      this.pageableItemIndexCache.put(i, -1);
-    }
-
-    this.clearProviders();
+    this.clearItemCache();
   }
 
   private void calculateFreeSlots() {
     this.freeSlots.clear();
-    this.freeSlots.addAll(freeSlots(menu));
+    freeSlots(menu, this.freeSlots);
   }
 
+  /**
+   * Checks if the index is bewteen the page's range.
+   *
+   * @param index The index to check
+   * @param page The page
+   * @return index >= minPageIndex && index < maxPageIndex
+   */
   private boolean isInPage(int index, int page) {
     int itemsPerPage = itemsPerPage(menu);
     int start = startOfPage(itemsPerPage, page);
     int end = endOfPage(itemsPerPage, page);
-    return index >= start || index < end;
+    return index >= start && index < end;
   }
 
-  private @NotNull ItemProvider placedItem(int slot) {
-    return slot != -1 ? providersInUse[slot] : ItemProvider.AIR;
+  private @NotNull MenuItem<?> placedItem(int slot) {
+    return slot != -1 ? menuItemCache[slot] : AirMenuItem.INSTANCE;
   }
 
-  private void clearProviders() {
-    Arrays.fill(this.providersInUse, ItemProvider.AIR);
+  private void clearItemCache() {
+    Arrays.fill(this.menuItemCache, AirMenuItem.INSTANCE);
   }
 
   private void calculateItemDistribution() {
-    clearProviders();
+    clearItemCache();
     pageableItemIndexCache.clear();
 
+    // Insert the static items
     menu.staticItemContainer().forEach(this::insert);
 
+    // Now calculate the free slots (air)
     calculateFreeSlots();
 
     renderPageableItems(false);
   }
 
+  /**
+   * This method inserts a collection of pageable items in all free
+   * slots.
+   *
+   * @param fillWithAirIfNeeded If true, the remaining free slots that cannot be consumed due that
+   *                            all pageable items were rendered will be filled with {@link AirMenuItem#INSTANCE}
+   */
   private void renderPageableItems(boolean fillWithAirIfNeeded) {
     int itemsPerPage = itemsPerPage(menu);
 
-    int start = startOfPage(itemsPerPage, page);
-    int end = endOfPage(itemsPerPage, page);
+    int start = startOfPage(itemsPerPage, page); // inclusive
+    int end = endOfPage(itemsPerPage, page); // exclusive
 
     for (int index = start; index < end; index++) {
       StackedItemContainer stackedItemContainer = menu.pageableItemContainer();
 
+      // We reached the end of the pageable items list. There are no more items to render.
       boolean invalidIndex = index >= stackedItemContainer.count();
 
+      // When there are no more items to render, fill with air if possible
       if (invalidIndex && !fillWithAirIfNeeded) {
         continue;
       }
 
+      // All free slots were consumed
       Integer slot = freeSlots.poll();
 
       if (slot == null) return;
 
-      ItemProvider provider = invalidIndex ? ItemProvider.AIR : stackedItemContainer.get(index);
-      insertPageableItem(slot, index, provider);
+      MenuItem<?> menuItem = invalidIndex ? AirMenuItem.INSTANCE : stackedItemContainer.get(index);
+      insertPageableItem(slot, index, menuItem);
     }
   }
 
-  private void insertPageableItem(int slot, int index, ItemProvider provider) {
-    insert(slot, provider);
+  private void insertPageableItem(int slot, int index, MenuItem<?> menuItem) {
+    insert(slot, menuItem);
     pageableItemIndexCache.put(index, slot);
   }
 
-  private void insert(int slot, ItemProvider provider) {
-    providersInUse[slot] = provider;
-    ItemStack itemStack = provider.get();
-    if (itemStack == null) itemStack = ItemStack.AIR;
-    menu.inventory().setItemStack(slot, itemStack);
+  private void insert(int slot, @Nullable MenuItem<?> menuItem) {
+    menuItemCache[slot] = menuItem;
   }
 
   @Override
-  public void handleStaticItemInsert(int key, @NotNull ItemProvider itemProvider,
-      @Nullable ItemProvider previous) {
-    previous = previous != null ? previous : ItemProvider.AIR;
-
+  public void handleStaticItemInsert(int key, @Nullable MenuItem<?> menuItem,
+      @Nullable MenuItem<?> previous) {
     synchronized (this) {
-      if (previous == ItemProvider.AIR) {
+      // If the previous static item is null means that
+      // can be a pageable item at that position, to avoid
+      // overwriting it, we calculate the distribution again to push all subsequent
+      // items forward.
+      if (previous == null) {
         calculateItemDistribution();
         return;
       }
 
-      insert(key, itemProvider);
+      insert(key, menuItem);
     }
   }
 
   @Override
-  public void handlePageableItemInsertion(int index, @NotNull ItemProvider provider) {
+  public void handlePageableItemInsertion(int index, @Nullable MenuItem<?> menuItem) {
     synchronized (this) {
-      int slot = pageableItemIndexCache.get(index);
+      int slot = pageableItemIndexCache.getOrDefault(index, -1);
 
       if (slot != -1) {
-        insertPageableItem(slot, index, provider);
+        insertPageableItem(slot, index, menuItem);
       } else {
         calculateItemDistribution();
       }
@@ -142,20 +160,20 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
   }
 
   @Override
-  public void handlePageableItemsShift(int index, @NotNull ItemProvider provider) {
+  public void handlePageableItemsShift(int index, @Nullable MenuItem<?> menuItem) {
     synchronized (this) {
       if (!isInPage(index, page)) return; // out of the current page, don't need to be rendered
 
       StackedItemContainer container = menu.pageableItemContainer();
 
-      if (container.getLast() == provider) { // no elements in front of this, no shift made
+      if (container.getLast() == menuItem) { // no elements in front of this, no shift made
         Integer nextFreeSlot = freeSlots.poll();
 
         if (nextFreeSlot == null) return;
 
-        insertPageableItem(nextFreeSlot, index, provider);
+        insertPageableItem(nextFreeSlot, index, menuItem);
       } else {
-        ItemProvider temp = provider;
+        MenuItem<?> temp = menuItem;
 
         StackedItemContainer stackedItemContainer = menu.pageableItemContainer();
 
@@ -165,7 +183,7 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
 
           if (nextFreeSlot == null) return;
 
-          ItemProvider current = stackedItemContainer
+          MenuItem<?> current = stackedItemContainer
               .get(index);
 
           insertPageableItem(nextFreeSlot, index, temp);
@@ -177,21 +195,58 @@ public final class ItemRenderer<V> implements RelativeItemContainer.Listener, St
     }
   }
 
+  /**
+   * Handles the page change and renders the new pageable items.
+   *
+   * @param newPage The page to render
+   */
   public void pageChange(int newPage) {
     this.page = newPage;
+
+    // Use the previous pageable items' slots instead of calling freeSlots method
+    // Clear to avoid repeated elements
     this.freeSlots.clear();
     this.freeSlots.addAll(this.pageableItemIndexCache.values());
 
     renderPageableItems(true);
   }
 
-  public void updateItems() {
+  /**
+   * Tick items
+   * @param context The ItemContext used to tick all rendered items
+   */
+  public void updateItems(@NotNull ItemContext context) {
     synchronized (this) {
       int slot = 0;
-      for (ItemProvider provider : this.providersInUse) {
-        ItemStack itemStack = provider.get();
+      for (MenuItem<?> menuItem : this.menuItemCache) {
+        ItemStack itemStack = menuItem.get(context);
         menu.inventory().setItemStack(slot++, itemStack != null ? itemStack : ItemStack.AIR);
       }
     }
+  }
+
+  @Override
+  public @NotNull LinkedHashMap<Integer, MenuItem<?>> asMap() {
+    LinkedHashMap<Integer, MenuItem<?>> map = new LinkedHashMap<>();
+    for (int slot = 0; slot < menuItemCache.length; slot++) {
+      MenuItem<?> item = getItem(slot);
+      if (item != null) {
+        map.put(slot, item);
+      }
+    }
+    return map;
+  }
+
+  @Override
+  public @Nullable MenuItem<?> getItem(int slot) {
+    MenuItem<?> item = menuItemCache[slot];
+    ItemMathUtil.checkOutOfInventory(slot, menuItemCache.length);
+
+    return item == AirMenuItem.INSTANCE ? null : item;
+  }
+
+  @Override
+  public int length() {
+    return menuItemCache.length;
   }
 }
