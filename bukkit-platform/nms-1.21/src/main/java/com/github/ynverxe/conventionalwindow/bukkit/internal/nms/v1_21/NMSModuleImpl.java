@@ -1,9 +1,10 @@
-package com.github.ynverxe.conventionalwindow.bukkit.internal.nms.v1_20_5;
+package com.github.ynverxe.conventionalwindow.bukkit.internal.nms.v1_21;
 
 import com.github.ynverxe.conventionalwindow.bukkit.nms.common.NMSModule;
 import io.netty.channel.ChannelPipeline;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.lang.reflect.Field;
+import net.minecraft.network.PacketDecoder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.IdDispatchCodec;
 import net.minecraft.network.protocol.Packet;
@@ -33,7 +34,7 @@ public class NMSModuleImpl extends NMSModule {
   private final @NotNull Object2IntMap<?> idByPacket;
 
   public NMSModuleImpl() throws IllegalAccessException {
-    IdDispatchCodec<?, ?, ?> gameProtocolCodec = (IdDispatchCodec<?, ?, ?>) GameProtocols.CLIENTBOUND
+    IdDispatchCodec<?, ?, ?> gameProtocolCodec = (IdDispatchCodec<?, ?, ?>) GameProtocols.CLIENTBOUND_TEMPLATE
         .bind(byteBuf -> new RegistryFriendlyByteBuf(byteBuf, MinecraftServer.getServer().registryAccess()))
         .codec();
 

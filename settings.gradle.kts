@@ -17,3 +17,5 @@ include("bukkit-platform:nms-1.20.5")
 findProject(":bukkit-platform:nms-1.20.5")?.name = "nms-1.20.5"
 include("bukkit-platform:nms-common")
 findProject(":bukkit-platform:nms-common")?.name = "nms-common"
+include("bukkit-platform:nms-1.21")
+findProject(":bukkit-platform:nms-1.21")?.name = "nms-1.21"

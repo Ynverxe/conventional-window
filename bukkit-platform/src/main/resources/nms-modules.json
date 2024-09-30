@@ -3,6 +3,9 @@
     "1.20", "1.20.1", "1.20.2", "1.20.3", "1.20.4"
   ],
   "com.github.ynverxe.conventionalwindow.bukkit.internal.nms.v1_20_5.NMSModuleImpl": [
-    "1.20.5", "1.20.6", "1.21", "1.21.1"
+    "1.20.5", "1.20.6"
+  ],
+  "com.github.ynverxe.conventionalwindow.bukkit.internal.nms.v1_21.NMSModuleImpl": [
+    "1.21", "1.21.1"
   ]
 }
