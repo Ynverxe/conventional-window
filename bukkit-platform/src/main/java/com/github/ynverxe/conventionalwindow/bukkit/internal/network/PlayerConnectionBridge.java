@@ -57,6 +57,7 @@ public class PlayerConnectionBridge extends PlayerConnection {
       playPacket = new WindowItemsPacket(
           windowItemsPacket.windowId(),
           containerId,
+          windowItemsPacket.stateId(),
           windowItemsPacket.items(),
           windowItemsPacket.carriedItem()
       );
