@@ -109,6 +109,11 @@ public class PlayerConnectionBridge extends PlayerConnection {
     addChannelHandlersIfAbsent(this.player, getPlayer());
   }
 
+  @Override
+  public @NotNull ConnectionState getConnectionState() {
+    return ConnectionState.PLAY;
+  }
+
   private void addChannelHandlersIfAbsent(@NotNull Player player, @NotNull WrappedMinestomPlayer wrappedMinestomPlayer) {
     ChannelPipeline channelPipeline = NMSModule.instance().getChannelPipeline(player);
 
