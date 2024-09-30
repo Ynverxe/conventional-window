@@ -1,6 +1,7 @@
 package com.github.ynverxe.conventionalwindow;
 
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
+import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
@@ -96,7 +97,7 @@ public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V,
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<V> viewersView() {
+  public @NotNull @UnmodifiableView Collection<MenuViewer<V>> viewersView() {
     return Collections.unmodifiableCollection(platformHandler.viewers(inventory));
   }
 

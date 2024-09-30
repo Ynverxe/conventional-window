@@ -7,9 +7,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.listener.manager.PacketListenerManager;
+import net.minestom.server.network.ConnectionState;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.PacketProcessor;
+import net.minestom.server.network.packet.client.ClientPacket;
 import net.minestom.server.utils.binary.BinaryBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +24,7 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("CustomInboundAdapter");
   private static final PacketListenerManager PACKET_LISTENER_MANAGER = new PacketListenerManager();
-  private static final PacketProcessor PACKET_PROCESSOR = new PacketProcessor(PACKET_LISTENER_MANAGER);
+  private static final PacketProcessor PACKET_PROCESSOR = MinecraftServer.getPacketProcessor();
 
   private final @NotNull ChannelInboundHandlerAdapter vanillaDelegate;
   private @Nullable BinaryBuffer incompletePacket;
@@ -52,9 +55,14 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
     try {
       ByteBuffer nioBuffer = byteBuf.nioBuffer();
+
       NetworkBuffer buffer = new NetworkBuffer(nioBuffer, false);
-      int length = buffer.read(NetworkBuffer.VAR_INT);
       int packetId = buffer.read(buffer.VAR_INT);
+
+      int bodyLength = buffer.readableBytes();
+
+      // update read index
+      nioBuffer.position(buffer.readIndex());
 
       //System.out.println("Processing packet: " + packetId);
 
@@ -66,8 +74,8 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
           return;
         }
 
-        ByteBuffer packetBodyBuffer = nioBuffer.slice(buffer.readIndex(), length);
-        PACKET_PROCESSOR.process(playerConnection, packetId, packetBodyBuffer);
+        ClientPacket clientPacket = PACKET_PROCESSOR.create(ConnectionState.PLAY, packetId, nioBuffer);
+        PACKET_LISTENER_MANAGER.processClientPacket(clientPacket, playerConnection);
       } catch (Exception e) {
         LOGGER.error("Unexpected error when processing packet(id={})", packetId, e);
       }
