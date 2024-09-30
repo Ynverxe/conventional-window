@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "8.3.0"
     id("io.papermc.paperweight.userdev") version "1.7.2"
 }
 
@@ -21,10 +20,4 @@ dependencies {
     compileOnly(project(":bukkit-platform:nms-common"))
     // Cannot download 1.20.5 for any reason
     paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
-}
-
-tasks.shadowJar {
-    manifest {
-        attributes["paperweight-mappings-namespace"] = "mojang"
-    }
 }
