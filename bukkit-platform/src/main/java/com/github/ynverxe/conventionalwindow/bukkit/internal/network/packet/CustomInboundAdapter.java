@@ -9,8 +9,10 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.listener.manager.PacketListenerManager;
+import net.minestom.server.network.ConnectionState;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.PacketProcessor;
+import net.minestom.server.network.packet.client.ClientPacket;
 import net.minestom.server.utils.binary.BinaryBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,8 +75,8 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
           return;
         }
 
-        ByteBuffer packetBodyBuffer = nioBuffer.slice(buffer.readIndex(), length);
-        PACKET_PROCESSOR.process(playerConnection, packetId, packetBodyBuffer);
+        ClientPacket clientPacket = PACKET_PROCESSOR.create(ConnectionState.PLAY, packetId, nioBuffer);
+        PACKET_LISTENER_MANAGER.processClientPacket(clientPacket, playerConnection);
       } catch (Exception e) {
         LOGGER.error("Unexpected error when processing packet(id={})", packetId, e);
       }
