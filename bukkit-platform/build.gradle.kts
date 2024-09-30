@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("com.gradleup.shadow") version "8.3.0"
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("io.papermc.paperweight.userdev") version "1.7.2"
 }
 
 tasks {
@@ -20,6 +21,7 @@ repositories {
 }
 
 dependencies {
+    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     compileOnly("io.netty:netty-all:4.1.113.Final")
     compileOnly("net.minestom:minestom-snapshots:7ce047b22e")
