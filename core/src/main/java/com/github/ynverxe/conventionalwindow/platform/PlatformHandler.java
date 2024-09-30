@@ -27,6 +27,11 @@ public interface PlatformHandler<V> {
             .map(player -> new MenuViewer<>(player, player))
             .toList();
       }
+
+      @Override
+      public @NotNull MenuViewer<Player> newViewer(@NotNull Player player) {
+        return new MenuViewer<>(player, player);
+      }
     };
   }
 
@@ -35,4 +40,7 @@ public interface PlatformHandler<V> {
   void remove(@NotNull V viewer, @NotNull Inventory inventory);
 
   Collection<MenuViewer<V>> viewers(@NotNull Inventory inventory);
+
+  @NotNull MenuViewer<V> newViewer(@NotNull Player player);
+
 }

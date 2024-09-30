@@ -33,10 +33,13 @@ public class BukkitPlatformHandler implements PlatformHandler<Player> {
   @Override
   public Collection<MenuViewer<Player>> viewers(@NotNull Inventory inventory) {
     return inventory.getViewers().stream()
-        .map(player -> {
-          WrappedMinestomPlayer minestomPlayer = ((WrappedMinestomPlayer) player);
-          return new MenuViewer<>(minestomPlayer.bukkitPlayer(), minestomPlayer);
-        })
+        .map(this::newViewer)
         .toList();
+  }
+
+  @Override
+  public @NotNull MenuViewer<Player> newViewer(net.minestom.server.entity.@NotNull Player player) {
+    WrappedMinestomPlayer minestomPlayer = ((WrappedMinestomPlayer) player);
+    return new MenuViewer<>(minestomPlayer.bukkitPlayer(), minestomPlayer);
   }
 }
