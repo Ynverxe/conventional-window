@@ -36,7 +36,8 @@ public class PlayerConnectionBridge extends PlayerConnection {
     sendablePacket = SendablePacket.extractServerPacket(ConnectionState.PLAY, sendablePacket);
 
     if (!AllowedPackets.SERVER_TO_CLIENT.containsValue(sendablePacket.getClass())) {
-      throw new IllegalArgumentException("Packet '" + sendablePacket.getClass() + "' cannot be sent");
+      //throw new IllegalArgumentException("Packet '" + sendablePacket.getClass() + "' cannot be sent");
+      return;
     }
 
     if (!(sendablePacket instanceof Play playPacket)) {
