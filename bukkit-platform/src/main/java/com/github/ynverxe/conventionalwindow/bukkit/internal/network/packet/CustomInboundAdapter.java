@@ -53,9 +53,15 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
     try {
       ByteBuffer nioBuffer = byteBuf.nioBuffer();
+
       NetworkBuffer buffer = new NetworkBuffer(nioBuffer, false);
       int length = buffer.read(NetworkBuffer.VAR_INT);
       int packetId = buffer.read(buffer.VAR_INT);
+
+      int bodyLength = buffer.readableBytes();
+
+      // update read index
+      nioBuffer.position(buffer.readIndex());
 
       //System.out.println("Processing packet: " + packetId);
 
