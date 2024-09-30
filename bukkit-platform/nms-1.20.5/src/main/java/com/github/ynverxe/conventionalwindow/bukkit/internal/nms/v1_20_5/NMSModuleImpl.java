@@ -22,7 +22,7 @@ public class NMSModuleImpl extends NMSModule {
   static {
     try {
       BY_ID_FIELD = IdDispatchCodec.class
-          .getDeclaredField("byId");
+          .getDeclaredField("toId");
 
       BY_ID_FIELD.setAccessible(true);
     } catch (NoSuchFieldException e) {
