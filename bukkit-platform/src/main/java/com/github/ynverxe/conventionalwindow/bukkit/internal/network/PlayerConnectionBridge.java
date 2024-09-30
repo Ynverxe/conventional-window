@@ -36,14 +36,15 @@ public class PlayerConnectionBridge extends PlayerConnection {
     sendablePacket = SendablePacket.extractServerPacket(ConnectionState.PLAY, sendablePacket);
 
     if (!AllowedPackets.SERVER_TO_CLIENT.containsValue(sendablePacket.getClass())) {
-      throw new IllegalArgumentException("Packet '" + sendablePacket.getClass() + "' cannot be sent");
+      //throw new IllegalArgumentException("Packet '" + sendablePacket.getClass() + "' cannot be sent");
+      return;
     }
 
     if (!(sendablePacket instanceof Play playPacket)) {
       return;
     }
 
-    int containerId = getPlayer().bukkitContainerId();
+    byte containerId = (byte) getPlayer().bukkitContainerId();
     if (playPacket instanceof OpenWindowPacket openWindowPacket) {
       playPacket = new OpenWindowPacket(
           containerId,
@@ -54,20 +55,32 @@ public class PlayerConnectionBridge extends PlayerConnection {
 
     if (playPacket instanceof WindowItemsPacket windowItemsPacket) {
       playPacket = new WindowItemsPacket(
-          windowItemsPacket.windowId(),
           containerId,
+          windowItemsPacket.stateId(),
           windowItemsPacket.items(),
           windowItemsPacket.carriedItem()
       );
     }
 
-    if (sendablePacket instanceof SetSlotPacket setSlotPacket) {
-      playPacket = new SetSlotPacket(
-          setSlotPacket.windowId(),
-          containerId,
-          setSlotPacket.slot(),
-          setSlotPacket.itemStack()
-      );
+    if (playPacket instanceof SetSlotPacket setSlotPacket) {
+      int windowId = setSlotPacket.windowId();
+
+      // avoid Network Protocol Error screen message
+      // https://wiki.vg/Protocol#Set_Container_Slot
+      switch (windowId) {
+        case 0:
+        case -1:
+        case -2:
+          break; // do nothing
+        default:
+          playPacket = new SetSlotPacket(
+              containerId,
+              setSlotPacket.stateId(),
+              setSlotPacket.slot(),
+              setSlotPacket.itemStack()
+          );
+          break;
+      }
     }
 
     NMSModule.instance().sendPacket(player, playPacket);
@@ -93,6 +106,11 @@ public class PlayerConnectionBridge extends PlayerConnection {
     super.setPlayer(player);
 
     addChannelHandlersIfAbsent(this.player, getPlayer());
+  }
+
+  @Override
+  public @NotNull ConnectionState getConnectionState() {
+    return ConnectionState.PLAY;
   }
 
   private void addChannelHandlersIfAbsent(@NotNull Player player, @NotNull WrappedMinestomPlayer wrappedMinestomPlayer) {
