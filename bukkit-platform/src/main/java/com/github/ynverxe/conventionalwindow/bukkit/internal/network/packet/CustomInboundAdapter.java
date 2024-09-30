@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.PacketProcessor;
@@ -21,7 +22,7 @@ public class CustomInboundAdapter extends ChannelInboundHandlerAdapter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("CustomInboundAdapter");
   private static final PacketListenerManager PACKET_LISTENER_MANAGER = new PacketListenerManager();
-  private static final PacketProcessor PACKET_PROCESSOR = new PacketProcessor(PACKET_LISTENER_MANAGER);
+  private static final PacketProcessor PACKET_PROCESSOR = MinecraftServer.getPacketProcessor();
 
   private final @NotNull ChannelInboundHandlerAdapter vanillaDelegate;
   private @Nullable BinaryBuffer incompletePacket;
