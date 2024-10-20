@@ -5,7 +5,6 @@ import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContaine
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
@@ -31,13 +30,9 @@ import org.jetbrains.annotations.UnmodifiableView;
  * </ul>
  *
  * {@link SimpleMenu} is the default implementation for this class.
- * Other menu implementations like {@link com.github.ynverxe.conventionalwindow.minestom.MinestomMenu}
- * are platform-based implementations
- * that extend the {@link SimpleMenu} class and fills the type parameters
- * with platform related types.
  *
- * @param <M> The Menu implementation class (equivalent to doing Object#this)
- * @param <V> The viewer type, this depends on the platform type.
+ * @param <M> The Menu implementation class
+ * @param <V> The viewer type
  * @param <T> The inventory type, it is up to the programmer's choice.
  */
 public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends Schedulable {
