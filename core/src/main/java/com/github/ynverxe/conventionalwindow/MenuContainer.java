@@ -4,12 +4,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-public abstract class MenuContainer<M extends Menu<M, V, T>, V, T extends Inventory>
+public abstract class MenuContainer<M extends Menu<M, V, T>, V extends Player, T extends Inventory>
     implements Runnable {
 
   private final Logger logger;

@@ -8,6 +8,7 @@ import com.github.ynverxe.conventionalwindow.page.Pagination;
 import java.util.List;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @param <V> The viewer type
  * @param <T> The inventory type, it is up to the programmer's choice.
  */
-public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends Schedulable {
+public interface Menu<M extends Menu<M, V, T>, V extends Player, T extends Inventory> extends Schedulable {
 
   @Contract("_ -> this")
   M renderTitle(@NotNull Component title);

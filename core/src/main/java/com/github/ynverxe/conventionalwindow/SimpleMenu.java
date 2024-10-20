@@ -5,13 +5,13 @@ import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContaine
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
-import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -19,11 +19,10 @@ import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V, C, T>>
+public abstract class SimpleMenu<V extends Player, C extends Inventory, T extends SimpleMenu<V, C, T>>
     implements Menu<T, V, C> {
 
   private final C inventory;
-  private final PlatformHandler<V> platformHandler;
   private final List<ItemStack> renderedItemStacks = new ArrayList<>();
   private final StackedItemContainer pageableItems;
   private final RelativeItemContainer staticItems;
@@ -36,9 +35,8 @@ public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V,
   private volatile @NotNull Component renderedTitle = Component.empty();
   private volatile @NotNull Consumer<ItemContext> itemContextConfigurator = context -> {};
 
-  public SimpleMenu(@NotNull C inventory, @NotNull PlatformHandler<V> platformHandler) {
+  public SimpleMenu(@NotNull C inventory) {
     this.inventory = inventory;
-    this.platformHandler = platformHandler;
     this.itemRenderer = new ItemRenderer(this, capacity());
     this.pageableItems = new StackedItemContainer(this, this.itemRenderer);
     this.staticItems = new RelativeItemContainer(this, this.itemRenderer, inventory.getSize());
@@ -86,12 +84,14 @@ public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V,
 
   @Override
   public void render(@NotNull V viewer) {
-    platformHandler.render(viewer, inventory);
+    viewer.openInventory(this.inventory);
   }
 
   @Override
   public void remove(@NotNull V viewer) {
-    platformHandler.remove(viewer, inventory);
+    if (viewer.getOpenInventory() == this.inventory) {
+      viewer.closeInventory();
+    }
   }
 
   @Override
