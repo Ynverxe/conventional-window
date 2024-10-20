@@ -1,14 +1,12 @@
 package com.github.ynverxe.conventionalwindow;
 
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
-import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
 import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -94,11 +92,6 @@ public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V,
   @Override
   public void remove(@NotNull V viewer) {
     platformHandler.remove(viewer, inventory);
-  }
-
-  @Override
-  public @NotNull @UnmodifiableView Collection<MenuViewer<V>> viewersView() {
-    return Collections.unmodifiableCollection(platformHandler.viewers(inventory));
   }
 
   @Override
