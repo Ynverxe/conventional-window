@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class ItemRenderer implements RelativeItemContainer.Listener, StackedItemContainer.Listener, RenderView {
 
-  private final Menu<?, ?, ?> menu;
+  private final Menu<?, ?> menu;
   private final MenuItem<?>[] menuItemCache;
 
   // index -> slot position
@@ -34,7 +34,7 @@ public final class ItemRenderer implements RelativeItemContainer.Listener, Stack
   // pagination
   private int page = 0;
 
-  public ItemRenderer(Menu<?, ?, ?> menu, int capacity) {
+  public ItemRenderer(Menu<?, ?> menu, int capacity) {
     this.menu = menu;
     this.pageableItemIndexCache = new TreeMap<>(Integer::compareTo);
     this.menuItemCache = new MenuItem[capacity];
@@ -220,7 +220,7 @@ public final class ItemRenderer implements RelativeItemContainer.Listener, Stack
       int slot = 0;
       for (MenuItem<?> menuItem : this.menuItemCache) {
         ItemStack itemStack = menuItem.get(context);
-        menu.inventory().setItemStack(slot++, itemStack != null ? itemStack : ItemStack.AIR);
+        menu.setItemStack(slot++, itemStack != null ? itemStack : ItemStack.AIR);
       }
     }
   }

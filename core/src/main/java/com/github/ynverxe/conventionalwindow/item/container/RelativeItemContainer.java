@@ -12,11 +12,11 @@ import org.jetbrains.annotations.Nullable;
 public class RelativeItemContainer extends ConcurrentHashMap<Integer, MenuItem<?>>
     implements AbstractItemContainer {
 
-  private final Menu<?, ?, ?> menu;
+  private final Menu<?, ?> menu;
   private final Listener listener;
   private final int capacity;
 
-  public RelativeItemContainer(@NotNull Menu<?, ?, ?> menu, @NotNull Listener listener, int capacity) {
+  public RelativeItemContainer(@NotNull Menu<?, ?> menu, @NotNull Listener listener, int capacity) {
     this.menu = Objects.requireNonNull(menu, "menu");
     this.listener = Objects.requireNonNull(listener, "listener");
     this.capacity = capacity;
@@ -76,8 +76,8 @@ public class RelativeItemContainer extends ConcurrentHashMap<Integer, MenuItem<?
 
   @Override
   public @NotNull RelativeItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem) {
-    while (iterator.hasNext(menu.type())) {
-      int next = iterator.next(menu.type());
+    while (iterator.hasNext(menu.getInventoryType())) {
+      int next = iterator.next(menu.getInventoryType());
       put(next, menuItem.copy());
     }
 
