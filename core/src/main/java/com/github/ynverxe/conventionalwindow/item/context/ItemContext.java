@@ -1,14 +1,13 @@
 package com.github.ynverxe.conventionalwindow.item.context;
 
 import com.github.ynverxe.conventionalwindow.Menu;
-import com.github.ynverxe.conventionalwindow.SimpleMenu;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
- * Used to expose data to {@link com.github.ynverxe.conventionalwindow.item.MenuItem} related logic. This class is created every tick on {@link SimpleMenu#tick()} or when an item click event is called.
+ * Used to expose data to {@link com.github.ynverxe.conventionalwindow.item.MenuItem} related logic. This class is created every tick on {@link Menu#tick()} or when an item click event is called.
  * You can configure an ItemContext at the moment of be created using {@link Menu#configureItemContext}
  */
 public class ItemContext extends LinkedHashMap<String, Object> {
