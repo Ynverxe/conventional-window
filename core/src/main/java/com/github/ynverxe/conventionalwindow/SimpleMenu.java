@@ -19,7 +19,7 @@ import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public abstract class SimpleMenu<V extends Player, C extends Inventory, T extends SimpleMenu<V, C, T>>
+public class SimpleMenu<V extends Player, C extends Inventory, T extends SimpleMenu<V, C, T>>
     implements Menu<T, V, C> {
 
   private final C inventory;
