@@ -1,17 +1,19 @@
 package com.github.ynverxe.conventionalwindow.test;
 
-import com.github.ynverxe.conventionalwindow.minestom.MinestomMenu;
-import com.github.ynverxe.conventionalwindow.minestom.MinestomMenuContainer;
+import com.github.ynverxe.conventionalwindow.Menu;
+import com.github.ynverxe.conventionalwindow.MenuContainer;
+import com.github.ynverxe.conventionalwindow.SimpleMenu;
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.item.SequentialMenuItem;
 import com.github.ynverxe.conventionalwindow.item.StaticMenuItem;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.event.inventory.InventoryPreClickEvent;
+import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,16 +21,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("all")
 public class ItemMenuTest {
 
-  private static final MinestomMenuContainer<Inventory> CONTAINER;
+  private static final MenuContainer<?, ?, Inventory> CONTAINER;
 
   static {
     MinecraftServer.init();
-    CONTAINER = new MinestomMenuContainer<>(type -> new Inventory(type, Component.empty()));
+    CONTAINER =
+        new MenuContainer<Menu, Player, Inventory>() {
+          @Override
+          protected Menu createMenu(@NotNull InventoryType inventoryType) {
+            return new SimpleMenu(new Inventory(inventoryType, Component.empty()));
+          }
+        };
   }
 
   @Test
   public void testOrder() {
-    MinestomMenu<Inventory> minestomMenu = CONTAINER.newMenu(InventoryType.CHEST_1_ROW);
+    Menu<?, ?, Inventory> minestomMenu = CONTAINER.newMenu(InventoryType.CHEST_1_ROW);
 
     StaticMenuItem apple = MenuItem.simple(Material.APPLE);
     StaticMenuItem pane = MenuItem.simple(Material.BLACK_STAINED_GLASS_PANE);
