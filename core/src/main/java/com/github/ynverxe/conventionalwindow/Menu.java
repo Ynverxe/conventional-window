@@ -1,25 +1,27 @@
 package com.github.ynverxe.conventionalwindow;
 
 import com.github.ynverxe.conventionalwindow.item.MenuItem;
-import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
 import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.timer.Schedulable;
+import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * A Menu is an object forwarded by an {@link Inventory} and servers
+ * A Menu is an object that extends {@link Inventory} and serves
  * as a nexus for a lot of other components.
  * They are:
  * <ul>
@@ -31,51 +33,81 @@ import org.jetbrains.annotations.UnmodifiableView;
  *   <li>A sequence of generic type parameters</li>
  * </ul>
  *
- * {@link SimpleMenu} is the default implementation for this class.
- * Other menu implementations like {@link com.github.ynverxe.conventionalwindow.minestom.MinestomMenu}
- * are platform-based implementations
- * that extend the {@link SimpleMenu} class and fills the type parameters
- * with platform related types.
- *
- * @param <M> The Menu implementation class (equivalent to doing Object#this)
- * @param <V> The viewer type, this depends on the platform type.
- * @param <T> The inventory type, it is up to the programmer's choice.
+ * @param <M> The Menu implementation class
  */
-public interface Menu<M extends Menu<M, V, T>, V, T extends Inventory> extends Schedulable {
+@SuppressWarnings("unchecked, UnusedReturnValue, unused")
+public class Menu<M extends Menu<M>> extends Inventory implements Schedulable {
+
+  private final List<ItemStack> renderedItemStacks = new ArrayList<>();
+  private final StackedItemContainer pageableItems;
+  private final RelativeItemContainer staticItems;
+  private final ItemRenderer itemRenderer;
+  private final Pagination<M> pagination;
+
+  private final @NotNull Scheduler scheduler = Scheduler.newScheduler();
+
+  private volatile @NotNull Consumer<ItemContext> itemContextConfigurator = context -> {};
+
+  public Menu(@NotNull InventoryType inventoryType) {
+    super(inventoryType, Component.empty());
+    this.itemRenderer = new ItemRenderer(this, capacity());
+    this.pageableItems = new StackedItemContainer(this, this.itemRenderer);
+    this.staticItems = new RelativeItemContainer(this, this.itemRenderer, getSize());
+    this.pagination = new Pagination<>((M) this, itemRenderer);
+    this.itemRenderer.init();
+  }
 
   @Contract("_ -> this")
-  M renderTitle(@NotNull Component title);
+  public M renderTitle(@NotNull Component title) {
+    this.setTitle(title);
+    return (M) this;
+  }
 
-  @NotNull Component title();
+  public @NotNull @UnmodifiableView List<ItemStack> renderedItems() {
+    return Collections.unmodifiableList(renderedItemStacks);
+  }
 
-  @NotNull Component renderedTitle();
+  public @NotNull RelativeItemContainer staticItemContainer() {
+    return staticItems;
+  }
 
-  @NotNull @UnmodifiableView List<ItemStack> renderedItems();
+  public @NotNull StackedItemContainer pageableItemContainer() {
+    return pageableItems;
+  }
 
-  @NotNull RelativeItemContainer staticItemContainer();
+  public int capacity() {
+    return this.getSize();
+  }
 
-  @NotNull StackedItemContainer pageableItemContainer();
+  @NotNull
+  public Pagination<M> pagination() {
+    return pagination;
+  }
 
-  int capacity();
+  public void tick() {
+    ItemContext itemContext = createItemContext();
+    this.itemRenderer.updateItems(itemContext);
+    this.scheduler.processTick();
+  }
 
-  void render(@NotNull V viewer);
+  protected ItemContext createItemContext() {
+    ItemContext itemContext = new ItemContext(this);
+    itemContextConfigurator.accept(itemContext);
+    return itemContext;
+  }
 
-  void remove(@NotNull V viewer);
+  public M configureItemContext(@NotNull Consumer<ItemContext> configurator) {
+    this.itemContextConfigurator = this.itemContextConfigurator.andThen(
+        Objects.requireNonNull(configurator, "configurator"));
+    return (M) this;
+  }
 
-  @NotNull @UnmodifiableView
-  Collection<MenuViewer<V>> viewersView();
+  public @NotNull RenderView renderView() {
+    return itemRenderer;
+  }
 
-  @NotNull Pagination<M> pagination();
-
-  @NotNull InventoryType type();
-
-  @NotNull T inventory();
-
-  void tick();
-
-  @Contract("_ -> this")
-  M configureItemContext(@NotNull Consumer<ItemContext> configurator);
-
-  @NotNull RenderView renderView();
-
+  @Override
+  public @NotNull Scheduler scheduler() {
+    return scheduler;
+  }
 }
