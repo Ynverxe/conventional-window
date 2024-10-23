@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
@@ -35,10 +34,9 @@ import org.jetbrains.annotations.UnmodifiableView;
  * </ul>
  *
  * @param <M> The Menu implementation class
- * @param <V> The viewer type
  */
 @SuppressWarnings("unchecked, UnusedReturnValue, unused")
-public class Menu<M extends Menu<M, V>, V extends Player> extends Inventory implements Schedulable {
+public class Menu<M extends Menu<M>> extends Inventory implements Schedulable {
 
   private final List<ItemStack> renderedItemStacks = new ArrayList<>();
   private final StackedItemContainer pageableItems;

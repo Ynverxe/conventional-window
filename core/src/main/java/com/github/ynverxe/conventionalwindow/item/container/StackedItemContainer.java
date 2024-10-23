@@ -15,11 +15,11 @@ import org.jetbrains.annotations.Nullable;
 public class StackedItemContainer extends AbstractList<MenuItem<?>> implements
     AbstractItemContainer {
 
-  private final Menu<?, ?> menu;
+  private final Menu<?> menu;
   private final List<MenuItem<?>> menuItems = new ArrayList<>();
   private final Listener listener;
 
-  public StackedItemContainer(@NotNull Menu<?, ?> menu, @NotNull Listener listener) {
+  public StackedItemContainer(@NotNull Menu<?> menu, @NotNull Listener listener) {
     this.menu = Objects.requireNonNull(menu, "menu");
     this.listener = Objects.requireNonNull(listener, "listener");
   }

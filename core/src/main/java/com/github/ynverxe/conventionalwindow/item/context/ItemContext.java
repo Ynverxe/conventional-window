@@ -12,17 +12,17 @@ import org.jetbrains.annotations.UnknownNullability;
  */
 public class ItemContext extends LinkedHashMap<String, Object> {
 
-  private final @NotNull Menu<?, ?> menu;
+  private final @NotNull Menu<?> menu;
 
-  public ItemContext(@NotNull Menu<?, ?> menu) {
+  public ItemContext(@NotNull Menu<?> menu) {
     this.menu = Objects.requireNonNull(menu, "menu");
   }
 
-  public @NotNull Menu<?, ?> menu() {
+  public @NotNull Menu<?> menu() {
     return menu;
   }
 
-  public <T extends Menu<?, ?>> @UnknownNullability T menuAs(@NotNull Class<T> expected) {
+  public <T extends Menu<?>> @UnknownNullability T menuAs(@NotNull Class<T> expected) {
     if (expected.isInstance(menu)) {
       return expected.cast(menu);
     }

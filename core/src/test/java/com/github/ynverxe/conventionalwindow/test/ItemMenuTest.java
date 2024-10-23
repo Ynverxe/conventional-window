@@ -18,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("all")
 public class ItemMenuTest {
 
-  private static final MenuContainer<?, ?> CONTAINER;
+  private static final MenuContainer<?> CONTAINER;
 
   static {
     MinecraftServer.init();
     CONTAINER =
-        new MenuContainer<Menu, Player>() {
+        new MenuContainer<Menu>() {
           @Override
           protected Menu createMenu(@NotNull InventoryType inventoryType) {
             return new Menu(inventoryType);
@@ -33,7 +33,7 @@ public class ItemMenuTest {
 
   @Test
   public void testOrder() {
-    Menu<?, ?> minestomMenu = CONTAINER.newMenu(InventoryType.CHEST_1_ROW);
+    Menu<?> minestomMenu = CONTAINER.newMenu(InventoryType.CHEST_1_ROW);
 
     StaticMenuItem apple = MenuItem.simple(Material.APPLE);
     StaticMenuItem pane = MenuItem.simple(Material.BLACK_STAINED_GLASS_PANE);
