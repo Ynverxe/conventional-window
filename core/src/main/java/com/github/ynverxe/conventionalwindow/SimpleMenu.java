@@ -1,14 +1,18 @@
 package com.github.ynverxe.conventionalwindow;
 
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.audience.MenuViewer;
 import com.github.ynverxe.conventionalwindow.item.container.RelativeItemContainer;
 import com.github.ynverxe.conventionalwindow.item.container.StackedItemContainer;
+import com.github.ynverxe.conventionalwindow.item.context.ItemContext;
 import com.github.ynverxe.conventionalwindow.page.Pagination;
 import com.github.ynverxe.conventionalwindow.platform.PlatformHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
@@ -17,37 +21,39 @@ import net.minestom.server.timer.Scheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>, V, T> {
+public abstract class SimpleMenu<V, C extends Inventory, T extends SimpleMenu<V, C, T>>
+    implements Menu<T, V, C> {
 
-  private final T inventory;
+  private final C inventory;
   private final PlatformHandler<V> platformHandler;
   private final List<ItemStack> renderedItemStacks = new ArrayList<>();
   private final StackedItemContainer pageableItems;
   private final RelativeItemContainer staticItems;
-  private final ItemRenderer<V> itemRenderer;
-  private final Pagination<SimpleMenu<V, T>> pagination;
+  private final ItemRenderer itemRenderer;
+  private final Pagination<T> pagination;
 
   private final @NotNull Scheduler scheduler = Scheduler.newScheduler();
 
   private volatile @NotNull Component title = Component.empty();
   private volatile @NotNull Component renderedTitle = Component.empty();
+  private volatile @NotNull Consumer<ItemContext> itemContextConfigurator = context -> {};
 
-  public SimpleMenu(@NotNull T inventory, @NotNull PlatformHandler<V> platformHandler) {
+  public SimpleMenu(@NotNull C inventory, @NotNull PlatformHandler<V> platformHandler) {
     this.inventory = inventory;
     this.platformHandler = platformHandler;
-    this.itemRenderer = new ItemRenderer<>(this, platformHandler, capacity());
+    this.itemRenderer = new ItemRenderer(this, capacity());
     this.pageableItems = new StackedItemContainer(this, this.itemRenderer);
     this.staticItems = new RelativeItemContainer(this, this.itemRenderer, inventory.getSize());
-    this.pagination = new Pagination<>(this, itemRenderer);
+    this.pagination = new Pagination<>((T) this, itemRenderer);
     this.itemRenderer.init();
   }
 
   @Override
-  public SimpleMenu<V, T> renderTitle(@NotNull Component title) {
+  public T renderTitle(@NotNull Component title) {
     this.title = title;
     this.renderedTitle = title;
     this.inventory.setTitle(renderedTitle);
-    return this;
+    return (T) this;
   }
 
   @Override
@@ -97,7 +103,7 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
 
   @Override
   @NotNull
-  public Pagination<SimpleMenu<V, T>> pagination() {
+  public Pagination<T> pagination() {
     return pagination;
   }
 
@@ -108,13 +114,31 @@ public class SimpleMenu<V, T extends Inventory> implements Menu<SimpleMenu<V, T>
   }
 
   @Override
-  public @NotNull T inventory() {
+  public @NotNull C inventory() {
     return inventory;
   }
 
   public void tick() {
-    this.itemRenderer.updateItems();
+    ItemContext itemContext = createItemContext();
+    this.itemRenderer.updateItems(itemContext);
     this.scheduler.processTick();
+  }
+
+  protected ItemContext createItemContext() {
+    ItemContext itemContext = new ItemContext(this);
+    itemContextConfigurator.accept(itemContext);
+    return itemContext;
+  }
+
+  @Override
+  public T configureItemContext(@NotNull Consumer<ItemContext> configurator) {
+    this.itemContextConfigurator = this.itemContextConfigurator.andThen(Objects.requireNonNull(configurator, "configurator"));
+    return (T) this;
+  }
+
+  @Override
+  public @NotNull RenderView renderView() {
+    return itemRenderer;
   }
 
   @Override

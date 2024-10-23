@@ -1,15 +1,15 @@
 package com.github.ynverxe.conventionalwindow.item.container;
 
 import com.github.ynverxe.conventionalwindow.Menu;
-import com.github.ynverxe.conventionalwindow.item.AbstractItemContainer;
-import com.github.ynverxe.conventionalwindow.item.ItemProvider;
+import com.github.ynverxe.conventionalwindow.item.MenuItem;
 import com.github.ynverxe.conventionalwindow.slot.SlotIterator;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RelativeItemContainer extends ConcurrentHashMap<Integer, ItemProvider>
+public class RelativeItemContainer extends ConcurrentHashMap<Integer, MenuItem<?>>
     implements AbstractItemContainer {
 
   private final Menu<?, ?, ?> menu;
@@ -23,33 +23,33 @@ public class RelativeItemContainer extends ConcurrentHashMap<Integer, ItemProvid
   }
 
   @Override
-  public ItemProvider put(@NotNull Integer key, @Nullable ItemProvider value) {
+  public @Nullable MenuItem<?> put(@NotNull Integer key, @Nullable MenuItem<?> value) {
     if (key < 0 || key > maxFindableIndex())
       throw new IndexOutOfBoundsException("key out of bounds (" + key + ")");
 
-    value = value != null ? value : ItemProvider.AIR;
-    ItemProvider previous = super.put(key, value);
+    if (value == null) return remove(key);
+
+    MenuItem<?> previous = super.put(key, value);
     listener.handleStaticItemInsert(key, value, previous);
     return previous;
   }
 
   @Override
   public boolean remove(Object key, Object value) {
-    ItemProvider removed = super.remove(key);
+    MenuItem<?> removed = super.remove(key);
     if (removed != null) {
-      listener.handleStaticItemInsert((int) key, (ItemProvider) value, removed);
+      listener.handleStaticItemInsert((int) key, (MenuItem<?>) value, removed);
     }
 
     return removed != null;
   }
 
   @Override
-  public @NotNull ItemProvider get(int index) {
+  public @Nullable MenuItem<?> get(int index) {
     if (index < 0 || index > maxFindableIndex())
       throw new IndexOutOfBoundsException("key out of bounds (" + index + ")");
 
-    ItemProvider found = super.get(index);
-    return found != null ? found : ItemProvider.AIR;
+    return super.get(index);
   }
 
   @Override
@@ -70,21 +70,22 @@ public class RelativeItemContainer extends ConcurrentHashMap<Integer, ItemProvid
   public int nonNullCount() {
     return (int) values()
         .stream()
-        .filter(itemProvider -> itemProvider != ItemProvider.AIR)
+        .filter(Objects::nonNull)
         .count();
   }
 
   @Override
-  public RelativeItemContainer fill(@NotNull SlotIterator iterator, @NotNull ItemProvider provider) {
+  public @NotNull RelativeItemContainer fill(@NotNull SlotIterator iterator, @NotNull MenuItem<?> menuItem) {
     while (iterator.hasNext(menu.type())) {
       int next = iterator.next(menu.type());
-      put(next, provider.fork());
+      put(next, menuItem.copy());
     }
 
     return this;
   }
 
+  @Internal
   public interface Listener {
-    void handleStaticItemInsert(int key, @NotNull ItemProvider itemProvider, @Nullable ItemProvider previous);
+    void handleStaticItemInsert(int key, @Nullable MenuItem<?> itemProvider, @Nullable MenuItem<?> previous);
   }
 }
